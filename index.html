@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Pong</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    
+    <div class="game-wrapper">
+        <header>
+            <div class="scoreboard">
+                <div class="score-section player">
+                    <div class="label">PLAYER</div>
+                    <div id="playerScore" class="score">0</div>
+                </div>
+                <div class="divider"></div>
+                <div class="score-section computer">
+                    <div id="computerScore" class="score">0</div>
+                    <div class="label">CPU</div>
+                </div>
+            </div>
+        </header>
+        <div class="canvas-container" style="position: relative;">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+            
+            <div id="gameOverUi" class="game-over-ui" style="display: none;">
+                <a id="tweetShare" class="tweet-share-btn" target="_blank" href="#">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    Share Score
+                </a>
+            </div>
+
+            <div id="mobileHint" class="mobile-hint">
+                <span>💡 Tip: Use Touch or Mouse dragging for best mobile experience</span>
+                <button class="close-hint" onclick="document.getElementById('mobileHint').style.display='none'">✕</button>
+            </div>
+        </div>
+        <footer id="appFooter" class="app-footer" style="display: none;">
+            Created by <a href="https://twitter.com/aldo_tobing" target="_blank">@aldo_tobing</a>
+        </footer>
+    </div>
+    <script src="/script.js"></script>
+</body>
+</html>

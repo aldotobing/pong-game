@@ -1,0 +1,5 @@
+{
+  "name": "Retro Pong",
+  "description": "A classic browser-based Pong game built with vanilla JavaScript, HTML5 Canvas, and CSS.",
+  "requestFramePermissions": []
+}
