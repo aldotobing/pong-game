@@ -320,4 +320,22 @@ canvas {
         z-index: 50;
         color: rgba(255, 255, 255, 0.5);
     }
+
+    /* Pin share buttons to bottom of screen on mobile for easy thumb reach */
+    .game-over-ui {
+        top: auto;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+        left: 50%;
+        transform: translateX(-50%);
+        flex-direction: row;
+        gap: 10px;
+        width: max-content;
+    }
+
+    .tweet-share-btn, .ig-share-btn {
+        font-size: 13px;
+        padding: 14px 18px;
+        /* Larger tap target for mobile */
+        min-height: 48px;
+    }
 }
