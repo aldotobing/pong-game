@@ -881,6 +881,52 @@ function showGameOverUi() {
                 tweetBtn.href = `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
             }
 
+            const igBtn = document.getElementById('igShare');
+            if (igBtn) {
+                igBtn.onclick = async () => {
+                    const resultMsg = winner === 'PLAYER' ? 'won' : 'lost';
+                    const scoreText = `${playerScore} - ${computerScore}`;
+                    const shareText = `I just ${resultMsg} at Retro Pong with a score of ${scoreText}! 🏓\n\nCan you beat it?`;
+                    const shareUrl = "https://retropong.vercel.app/";
+
+                    const canvas = document.getElementById('gameCanvas');
+                    
+                    // 1. Capture the canvas as a Blob (screenshot)
+                    canvas.toBlob(async (blob) => {
+                        if (!blob) {
+                            console.error('Canvas toBlob failed');
+                            return;
+                        }
+
+                        // 2. Create a File object from the blob
+                        const file = new File([blob], 'retropong-score.png', { type: 'image/png' });
+
+                        // 3. Check if sharing files is supported
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            try {
+                                await navigator.share({
+                                    files: [file],
+                                    title: 'Retro Pong Score',
+                                    text: shareText,
+                                    // Note: Some platforms prefer URL in text or separate
+                                });
+                            } catch (err) {
+                                if (err.name !== 'AbortError') console.error('Share failed:', err);
+                            }
+                        } else {
+                            // Fallback for desktop or unsupported browsers
+                            try {
+                                const fullMsg = `${shareText}\n${shareUrl}`;
+                                await navigator.clipboard.writeText(fullMsg);
+                                alert("Score text copied! Your browser doesn't support direct image sharing, but you can take a screenshot and share it manually.");
+                            } catch (clipErr) {
+                                console.error('Clipboard failed:', clipErr);
+                            }
+                        }
+                    }, 'image/png');
+                };
+            }
+
             const appFooter = document.getElementById('appFooter');
             if (appFooter) {
                 appFooter.style.display = 'block';
