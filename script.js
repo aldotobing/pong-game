@@ -688,7 +688,7 @@ function checkCollision(b, p) {
 }
 
 // Update Logic
-function update(delta = 1) {
+function update() {
     if (gameState !== 'PLAYING') return;
 
     if (screenShake > 0) {
@@ -719,8 +719,8 @@ function update(delta = 1) {
     if (ballInvisibleTimer > 0) ballInvisibleTimer--;
 
     // Player Movement
-    if (keys.ArrowUp) player.y -= PADDLE_SPEED * delta;
-    if (keys.ArrowDown) player.y += PADDLE_SPEED * delta;
+    if (keys.ArrowUp) player.y -= PADDLE_SPEED;
+    if (keys.ArrowDown) player.y += PADDLE_SPEED;
     if (player.y < 0) player.y = 0;
     if (player.y + PADDLE_HEIGHT > CANVAS_HEIGHT) player.y = CANVAS_HEIGHT - PADDLE_HEIGHT;
 
@@ -744,14 +744,14 @@ function update(delta = 1) {
         const targetY = closestBall.y + (closestBall.dy * 5);
 
         if (computerCenter < targetY - 10) {
-            computer.y += COMPUTER_SPEED * delta;
+            computer.y += COMPUTER_SPEED;
         } else if (computerCenter > targetY + 10) {
-            computer.y -= COMPUTER_SPEED * delta;
+            computer.y -= COMPUTER_SPEED;
         }
     } else {
         const computerCenter = computer.y + computer.height / 2;
-        if (computerCenter < CANVAS_HEIGHT / 2 - 10) computer.y += COMPUTER_SPEED * 0.5 * delta;
-        else if (computerCenter > CANVAS_HEIGHT / 2 + 10) computer.y -= COMPUTER_SPEED * 0.5 * delta;
+        if (computerCenter < CANVAS_HEIGHT / 2 - 10) computer.y += COMPUTER_SPEED * 0.5;
+        else if (computerCenter > CANVAS_HEIGHT / 2 + 10) computer.y -= COMPUTER_SPEED * 0.5;
     }
 
     if (computer.y < 0) computer.y = 0;
@@ -762,9 +762,9 @@ function update(delta = 1) {
     const maxTrail = 10 + Math.min(rallyCount * 2, 25);
     if (ball.trail.length > maxTrail) ball.trail.shift();
 
-    // Ball Movement (delta-scaled for frame-rate independence)
-    ball.x += ball.dx * delta;
-    ball.y += ball.dy * delta;
+    // Ball Movement
+    ball.x += ball.dx;
+    ball.y += ball.dy;
 
     // Wall Collision
     if (ball.y - ball.radius < 0 || ball.y + ball.radius > CANVAS_HEIGHT) {
@@ -1156,26 +1156,12 @@ function render() {
     }
 }
 
-// Game Loop — delta-time ensures physics run at the same speed regardless of framerate
-// Safari mobile can drop to 30fps or throttle rAF, causing the game to feel slow without this
-let lastTimestamp = 0;
-const TARGET_FPS = 60;
-const FIXED_TIMESTEP = 1000 / TARGET_FPS;
-
-function gameLoop(timestamp) {
-    const elapsed = timestamp - lastTimestamp;
-
-    // Only run if enough time has passed — skip frames if running too fast,
-    // but catch up if running slow (mobile throttling)
-    if (elapsed >= FIXED_TIMESTEP * 0.9) {
-        // Clamp delta so a big lag spike doesn't send the ball flying
-        const delta = Math.min(elapsed, FIXED_TIMESTEP * 2) / FIXED_TIMESTEP;
-        lastTimestamp = timestamp;
-
-        update(delta);
-        render();
-    }
-
+// Game Loop
+// Now that performance bottlenecks (shadowBlur, gradients) are fixed,
+// a 1:1 update/render loop will run buttery smooth at native refresh rates.
+function gameLoop() {
+    update();
+    render();
     requestAnimationFrame(gameLoop);
 }
 
