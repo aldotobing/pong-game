@@ -909,39 +909,94 @@ function showGameOverUi() {
             const igBtn = document.getElementById('igShare');
             if (igBtn) {
                 igBtn.onclick = async () => {
-                    const resultMsg = winner === 'PLAYER' ? 'won' : 'lost';
-                    const scoreText = `${playerScore} - ${computerScore}`;
-                    const shareText = `I just ${resultMsg} at Retro Pong with a score of ${scoreText}! 🏓\n\nCan you beat it?`;
-                    const shareUrl = "https://retropong.vercel.app/";
-
                     const canvas = document.getElementById('gameCanvas');
                     
-                    // 1. Capture the canvas as a Blob (screenshot)
-                    canvas.toBlob(async (blob) => {
+                    // Create a 1080x1920 portrait canvas for Instagram Story
+                    const igCanvas = document.createElement('canvas');
+                    igCanvas.width = 1080;
+                    igCanvas.height = 1920;
+                    const igCtx = igCanvas.getContext('2d');
+
+                    // 1. Draw sleek gradient background
+                    const grad = igCtx.createLinearGradient(0, 0, 1080, 1920);
+                    grad.addColorStop(0, '#0f172a'); // slate-900
+                    grad.addColorStop(1, '#312e81'); // indigo-900
+                    igCtx.fillStyle = grad;
+                    igCtx.fillRect(0, 0, 1080, 1920);
+
+                    // 2. Add glowing ambient orbs in background
+                    const orb1 = igCtx.createRadialGradient(200, 300, 0, 200, 300, 600);
+                    orb1.addColorStop(0, 'rgba(56, 189, 248, 0.3)');
+                    orb1.addColorStop(1, 'transparent');
+                    igCtx.fillStyle = orb1;
+                    igCtx.fillRect(0, 0, 1080, 1920);
+
+                    const orb2 = igCtx.createRadialGradient(900, 1600, 0, 900, 1600, 800);
+                    orb2.addColorStop(0, 'rgba(244, 63, 94, 0.25)');
+                    orb2.addColorStop(1, 'transparent');
+                    igCtx.fillStyle = orb2;
+                    igCtx.fillRect(0, 0, 1080, 1920);
+
+                    // 3. Draw punchy copywriting at the top
+                    igCtx.textAlign = 'center';
+                    igCtx.fillStyle = 'white';
+                    igCtx.font = "800 85px 'Inter', sans-serif";
+                    const headline = winner === 'PLAYER' ? "I DOMINATED PONG!" : "I GOT REKT IN PONG!";
+                    igCtx.fillText(headline, 540, 350);
+
+                    igCtx.font = "600 45px 'Inter', sans-serif";
+                    igCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    igCtx.fillText("CAN YOU BEAT THIS SCORE?", 540, 440);
+
+                    // 4. Draw the actual game board in the center
+                    const scale = 1.1;
+                    const dw = 800 * scale;
+                    const dh = 600 * scale;
+                    const dx = (1080 - dw) / 2;
+                    const dy = (1920 - dh) / 2 - 40; // Shift up slightly
+
+                    // Add a glowing border around the game screenshot
+                    igCtx.shadowColor = winner === 'PLAYER' ? '#38bdf8' : '#f43f5e';
+                    igCtx.shadowBlur = 50;
+                    igCtx.fillStyle = '#000';
+                    igCtx.fillRect(dx - 6, dy - 6, dw + 12, dh + 12);
+                    igCtx.shadowBlur = 0; // reset
+                    
+                    igCtx.drawImage(canvas, dx, dy, dw, dh);
+
+                    // 5. Draw the massive score at the bottom
+                    igCtx.font = "900 140px 'Inter', sans-serif";
+                    igCtx.fillStyle = 'white';
+                    igCtx.fillText(`${playerScore} - ${computerScore}`, 540, 1500);
+
+                    // 6. Draw URL watermark
+                    igCtx.font = "500 40px 'Inter', sans-serif";
+                    igCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                    igCtx.fillText("retropong.vercel.app", 540, 1750);
+
+                    // Output this new portrait canvas instead of the main one
+                    igCanvas.toBlob(async (blob) => {
                         if (!blob) {
                             console.error('Canvas toBlob failed');
                             return;
                         }
 
-                        // 2. Create a File object from the blob
                         const file = new File([blob], 'retropong-score.png', { type: 'image/png' });
+                        const shareText = `I just ${winner === 'PLAYER' ? 'won' : 'lost'} at Retro Pong! 🏓\n\nCan you beat it?`;
 
-                        // 3. Check if sharing files is supported
                         if (navigator.canShare && navigator.canShare({ files: [file] })) {
                             try {
                                 await navigator.share({
                                     files: [file],
                                     title: 'Retro Pong Score',
-                                    text: shareText,
-                                    // Note: Some platforms prefer URL in text or separate
+                                    text: shareText
                                 });
                             } catch (err) {
                                 if (err.name !== 'AbortError') console.error('Share failed:', err);
                             }
                         } else {
-                            // Fallback for desktop or unsupported browsers
                             try {
-                                const fullMsg = `${shareText}\n${shareUrl}`;
+                                const fullMsg = `${shareText}\nhttps://retropong.vercel.app/`;
                                 await navigator.clipboard.writeText(fullMsg);
                                 alert("Score text copied! Your browser doesn't support direct image sharing, but you can take a screenshot and share it manually.");
                             } catch (clipErr) {
@@ -1150,14 +1205,8 @@ function render() {
         ctx.globalAlpha = 1.0; // Reset alpha
 
         if (charsToShow === fullText.length) {
-            // Draw Score on canvas so it shows up in IG story screenshots
-            drawText(`${playerScore} - ${computerScore}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 40, 36, 'white', '700');
-
             const pulseAlpha = 0.5 + 0.5 * Math.sin(Date.now() / 400);
-            drawText('Click or Press Space to Play Again', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 90, 18, `rgba(255, 255, 255, ${pulseAlpha})`, '500');
-
-            // Draw URL at the bottom
-            drawText('retropong.vercel.app', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 30, 16, 'rgba(255, 255, 255, 0.5)', '500');
+            drawText('Click or Press Space to Play Again', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 40, 18, `rgba(255, 255, 255, ${pulseAlpha})`, '500');
         }
     }
 }
