@@ -878,7 +878,11 @@ function showGameOverUi() {
                 const scoreText = `${playerScore} - ${computerScore}`;
                 const text = `I just ${resultMsg} at Retro Pong with a score of ${scoreText}! 🏓\n\nCan you beat it?`;
                 const shareUrl = "https://retropong.vercel.app/";
-                tweetBtn.href = `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
+                tweetBtn.onclick = (e) => {
+                    e.preventDefault();
+                    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
+                    window.open(twitterUrl, '_blank', 'width=550,height=420');
+                };
             }
 
             const igBtn = document.getElementById('igShare');
