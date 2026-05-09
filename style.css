@@ -192,12 +192,17 @@ header {
     font-size: 14px;
     padding: 12px 20px;
     border-radius: 9999px;
-    text-decoration: none;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     cursor: pointer;
     font-family: inherit;
+    /* Force identical sizing */
+    min-width: 140px;
+    height: 46px;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
 }
 
 .tweet-share-btn:hover {
@@ -316,7 +321,7 @@ canvas {
     }
     .app-footer {
         position: absolute;
-        bottom: 10px;
+        bottom: 6px;
         z-index: 50;
         color: rgba(255, 255, 255, 0.5);
     }
@@ -324,18 +329,25 @@ canvas {
     /* Pin share buttons to bottom of screen on mobile for easy thumb reach */
     .game-over-ui {
         top: auto;
-        bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
-        left: 50%;
-        transform: translateX(-50%);
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 56px);
+        left: 0;
+        right: 0;
+        transform: none;
+        justify-content: center;
         flex-direction: row;
+        flex-wrap: wrap;
         gap: 10px;
-        width: max-content;
+        width: 100%;
+        padding: 0 16px;
+        box-sizing: border-box;
     }
 
     .tweet-share-btn, .ig-share-btn {
         font-size: 13px;
-        padding: 14px 18px;
-        /* Larger tap target for mobile */
+        padding: 0 16px;
         min-height: 48px;
+        height: 48px;
+        min-width: 130px;
+        flex: 0 1 auto;
     }
 }
