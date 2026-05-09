@@ -197,33 +197,50 @@ document.addEventListener('mousemove', (e) => {
     }
 });
 
+let lastTouchY = null;
+const TOUCH_SENSITIVITY = 1.5; // Make the paddle move a bit faster than the finger for better reach
+
 function handleTouchMove(e) {
     if (gameState === 'PLAYING') {
         e.preventDefault();
         const rect = canvas.getBoundingClientRect();
         const scaleY = canvas.height / rect.height;
         const touch = e.touches[0];
-        const mouseY = (touch.clientY - rect.top) * scaleY;
-        player.y = mouseY - PADDLE_HEIGHT / 2;
-        if (player.y < 0) player.y = 0;
-        if (player.y + PADDLE_HEIGHT > CANVAS_HEIGHT) player.y = CANVAS_HEIGHT - PADDLE_HEIGHT;
+        
+        if (lastTouchY !== null) {
+            const deltaY = (touch.clientY - lastTouchY) * scaleY * TOUCH_SENSITIVITY;
+            player.y += deltaY;
+            
+            if (player.y < 0) player.y = 0;
+            if (player.y + PADDLE_HEIGHT > CANVAS_HEIGHT) player.y = CANVAS_HEIGHT - PADDLE_HEIGHT;
+        }
+        
+        lastTouchY = touch.clientY;
     }
 }
 
 document.addEventListener('touchmove', handleTouchMove, { passive: false });
 
 document.addEventListener('touchstart', (e) => {
-    if (e.target.tagName === 'BUTTON' || e.target.closest('a')) return;
+    if (e.target.tagName === 'BUTTON' || e.target.closest('a') || e.target.closest('.social-shares')) return;
 
+    // Only prevent default if we're actually interacting with the game
+    // This allows clicking buttons normally
     e.preventDefault();
     initAudio();
     if (gameState === 'START' || gameState === 'GAME_OVER') {
         resetGame();
         gameState = 'PLAYING';
-    } else {
-        handleTouchMove(e);
+    }
+    
+    if (e.touches.length > 0) {
+        lastTouchY = e.touches[0].clientY;
     }
 }, { passive: false });
+
+document.addEventListener('touchend', () => {
+    lastTouchY = null;
+});
 
 document.addEventListener('click', (e) => {
     if (e.target.tagName === 'BUTTON' || e.target.closest('a')) return;
