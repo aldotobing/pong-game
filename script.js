@@ -222,7 +222,7 @@ function handleTouchMove(e) {
 document.addEventListener('touchmove', handleTouchMove, { passive: false });
 
 document.addEventListener('touchstart', (e) => {
-    if (e.target.tagName === 'BUTTON' || e.target.closest('a') || e.target.closest('.social-shares')) return;
+    if (e.target.closest('button') || e.target.closest('a') || e.target.closest('.social-shares')) return;
 
     // Only prevent default if we're actually interacting with the game
     // This allows clicking buttons normally
@@ -243,7 +243,7 @@ document.addEventListener('touchend', () => {
 });
 
 document.addEventListener('click', (e) => {
-    if (e.target.tagName === 'BUTTON' || e.target.closest('a')) return;
+    if (e.target.closest('button') || e.target.closest('a')) return;
 
     initAudio();
     if (gameState === 'START' || gameState === 'GAME_OVER') {
