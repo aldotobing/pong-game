@@ -14,6 +14,15 @@ let rallyCount = 0;
 const PADDLE_SPEED = 10;
 const COMPUTER_SPEED = 5.5;
 
+// Mobile/Safari detection — shadowBlur is ~5x slower on Safari GPU
+const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+const REDUCE_FX = isMobile || isSafari;
+
+// Cache ball gradient to avoid re-creating each frame
+let cachedBallGradient = null;
+let cachedBallRadius = -1;
+
 // Colors
 const COLOR_PLAYER = '#38bdf8';
 const COLOR_COMPUTER = '#f43f5e';
@@ -255,12 +264,20 @@ function updateParticles() {
 }
 
 function drawParticles() {
+    // Batch particles by color to minimize state changes
+    const byColor = {};
     particles.forEach(p => {
-        ctx.globalAlpha = p.life;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
+        if (!byColor[p.color]) byColor[p.color] = [];
+        byColor[p.color].push(p);
+    });
+    Object.entries(byColor).forEach(([color, group]) => {
+        ctx.fillStyle = color;
+        group.forEach(p => {
+            ctx.globalAlpha = p.life;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
     });
     ctx.globalAlpha = 1.0;
 }
@@ -312,8 +329,10 @@ function drawHazards() {
         ctx.beginPath();
         ctx.arc(h.x, h.y, h.radius, 0, Math.PI * 2);
         ctx.fillStyle = h.color;
-        ctx.shadowColor = h.color;
-        ctx.shadowBlur = 20;
+        if (!REDUCE_FX) {
+            ctx.shadowColor = h.color;
+            ctx.shadowBlur = 20;
+        }
         ctx.fill();
         ctx.closePath();
         ctx.fillStyle = "#fff";
@@ -322,7 +341,7 @@ function drawHazards() {
         ctx.fill();
         ctx.closePath();
     });
-    ctx.shadowBlur = 0;
+    if (!REDUCE_FX) ctx.shadowBlur = 0;
 }
 
 // Floating Text System
@@ -359,8 +378,10 @@ function drawFloatingTexts() {
         ctx.globalAlpha = Math.max(0, ft.life);
         ctx.fillStyle = ft.color;
         ctx.font = `bold 24px 'Space Grotesk', sans-serif`;
-        ctx.shadowColor = ft.color;
-        ctx.shadowBlur = 10;
+        if (!REDUCE_FX) {
+            ctx.shadowColor = ft.color;
+            ctx.shadowBlur = 10;
+        }
         ctx.translate(ft.x, ft.y);
         ctx.scale(ft.scale, ft.scale);
         ctx.fillText(ft.text, 0, 0);
@@ -667,7 +688,7 @@ function checkCollision(b, p) {
 }
 
 // Update Logic
-function update() {
+function update(delta = 1) {
     if (gameState !== 'PLAYING') return;
 
     if (screenShake > 0) {
@@ -698,8 +719,8 @@ function update() {
     if (ballInvisibleTimer > 0) ballInvisibleTimer--;
 
     // Player Movement
-    if (keys.ArrowUp) player.y -= PADDLE_SPEED;
-    if (keys.ArrowDown) player.y += PADDLE_SPEED;
+    if (keys.ArrowUp) player.y -= PADDLE_SPEED * delta;
+    if (keys.ArrowDown) player.y += PADDLE_SPEED * delta;
     if (player.y < 0) player.y = 0;
     if (player.y + PADDLE_HEIGHT > CANVAS_HEIGHT) player.y = CANVAS_HEIGHT - PADDLE_HEIGHT;
 
@@ -723,14 +744,14 @@ function update() {
         const targetY = closestBall.y + (closestBall.dy * 5);
 
         if (computerCenter < targetY - 10) {
-            computer.y += COMPUTER_SPEED;
+            computer.y += COMPUTER_SPEED * delta;
         } else if (computerCenter > targetY + 10) {
-            computer.y -= COMPUTER_SPEED;
+            computer.y -= COMPUTER_SPEED * delta;
         }
     } else {
         const computerCenter = computer.y + computer.height / 2;
-        if (computerCenter < CANVAS_HEIGHT / 2 - 10) computer.y += COMPUTER_SPEED * 0.5;
-        else if (computerCenter > CANVAS_HEIGHT / 2 + 10) computer.y -= COMPUTER_SPEED * 0.5;
+        if (computerCenter < CANVAS_HEIGHT / 2 - 10) computer.y += COMPUTER_SPEED * 0.5 * delta;
+        else if (computerCenter > CANVAS_HEIGHT / 2 + 10) computer.y -= COMPUTER_SPEED * 0.5 * delta;
     }
 
     if (computer.y < 0) computer.y = 0;
@@ -741,9 +762,9 @@ function update() {
     const maxTrail = 10 + Math.min(rallyCount * 2, 25);
     if (ball.trail.length > maxTrail) ball.trail.shift();
 
-    // Ball Movement
-    ball.x += ball.dx;
-    ball.y += ball.dy;
+    // Ball Movement (delta-scaled for frame-rate independence)
+    ball.x += ball.dx * delta;
+    ball.y += ball.dy * delta;
 
     // Wall Collision
     if (ball.y - ball.radius < 0 || ball.y + ball.radius > CANVAS_HEIGHT) {
@@ -956,8 +977,10 @@ function drawPaddle(p) {
     grad.addColorStop(1, '#ffffff');
 
     ctx.fillStyle = grad;
-    ctx.shadowColor = p.color;
-    ctx.shadowBlur = p.hitBump > 0 ? 15 + (p.hitBump * 15) : 5;
+    if (!REDUCE_FX) {
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = p.hitBump > 0 ? 15 + (p.hitBump * 15) : 5;
+    }
 
     ctx.beginPath();
     ctx.roundRect(p.x + xOffset, p.y + yOffset, width, height, 6);
@@ -971,7 +994,7 @@ function drawPaddle(p) {
         ctx.fill();
     }
 
-    ctx.shadowBlur = 0; // reset
+    if (!REDUCE_FX) ctx.shadowBlur = 0; // reset
 }
 
 function drawBallSphere(x, y, radius, color, scaleX, scaleY, alpha = 1.0) {
@@ -981,15 +1004,21 @@ function drawBallSphere(x, y, radius, color, scaleX, scaleY, alpha = 1.0) {
 
     ctx.globalAlpha = alpha;
 
-    const grad = ctx.createRadialGradient(-radius * 0.3, -radius * 0.3, radius * 0.1, 0, 0, radius);
-    grad.addColorStop(0, '#ffffff');
-    grad.addColorStop(0.4, color);
-    grad.addColorStop(1, '#000000');
+    // Cache the radial gradient — re-creating it every frame per trail segment is expensive
+    if (cachedBallRadius !== radius || cachedBallGradient === null) {
+        cachedBallGradient = ctx.createRadialGradient(-radius * 0.3, -radius * 0.3, radius * 0.1, 0, 0, radius);
+        cachedBallGradient.addColorStop(0, '#ffffff');
+        cachedBallGradient.addColorStop(0.4, color);
+        cachedBallGradient.addColorStop(1, '#000000');
+        cachedBallRadius = radius;
+    }
 
-    ctx.fillStyle = grad;
+    ctx.fillStyle = cachedBallGradient;
 
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 10 * alpha;
+    if (!REDUCE_FX) {
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 10 * alpha;
+    }
 
     ctx.beginPath();
     ctx.arc(0, 0, radius, 0, Math.PI * 2);
@@ -1127,10 +1156,26 @@ function render() {
     }
 }
 
-// Game Loop
-function gameLoop() {
-    update();
-    render();
+// Game Loop — delta-time ensures physics run at the same speed regardless of framerate
+// Safari mobile can drop to 30fps or throttle rAF, causing the game to feel slow without this
+let lastTimestamp = 0;
+const TARGET_FPS = 60;
+const FIXED_TIMESTEP = 1000 / TARGET_FPS;
+
+function gameLoop(timestamp) {
+    const elapsed = timestamp - lastTimestamp;
+
+    // Only run if enough time has passed — skip frames if running too fast,
+    // but catch up if running slow (mobile throttling)
+    if (elapsed >= FIXED_TIMESTEP * 0.9) {
+        // Clamp delta so a big lag spike doesn't send the ball flying
+        const delta = Math.min(elapsed, FIXED_TIMESTEP * 2) / FIXED_TIMESTEP;
+        lastTimestamp = timestamp;
+
+        update(delta);
+        render();
+    }
+
     requestAnimationFrame(gameLoop);
 }
 
