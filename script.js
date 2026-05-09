@@ -1150,8 +1150,14 @@ function render() {
         ctx.globalAlpha = 1.0; // Reset alpha
 
         if (charsToShow === fullText.length) {
+            // Draw Score on canvas so it shows up in IG story screenshots
+            drawText(`${playerScore} - ${computerScore}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 40, 36, 'white', '700');
+
             const pulseAlpha = 0.5 + 0.5 * Math.sin(Date.now() / 400);
-            drawText('Click or Press Space to Play Again', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 40, 18, `rgba(255, 255, 255, ${pulseAlpha})`, '500');
+            drawText('Click or Press Space to Play Again', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 90, 18, `rgba(255, 255, 255, ${pulseAlpha})`, '500');
+
+            // Draw URL at the bottom
+            drawText('retropong.vercel.app', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 30, 16, 'rgba(255, 255, 255, 0.5)', '500');
         }
     }
 }
