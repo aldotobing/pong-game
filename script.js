@@ -49,15 +49,15 @@ function initAudio() {
 
 function playSound(type) {
     if (!audioCtx) return;
-    
+
     const osc = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
-    
+
     osc.connect(gainNode);
     gainNode.connect(audioCtx.destination);
-    
+
     const now = audioCtx.currentTime;
-    
+
     if (type === 'paddle') {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(400, now);
@@ -132,8 +132,8 @@ let particles = [];
 let floatingTexts = [];
 
 let hazards = [
-    {x: 400, y: 200, radius: 20, dy: 2, color: '#d946ef'}, // 800/2
-    {x: 400, y: 400, radius: 20, dy: -2, color: '#0ea5e9'}
+    { x: 400, y: 200, radius: 20, dy: 2, color: '#d946ef' }, // 800/2
+    { x: 400, y: 400, radius: 20, dy: -2, color: '#0ea5e9' }
 ];
 
 let mutators = [];
@@ -152,7 +152,7 @@ const keys = { ArrowUp: false, ArrowDown: false };
 document.addEventListener('keydown', (e) => {
     if (e.code === 'ArrowUp' || e.key === 'ArrowUp') keys.ArrowUp = true;
     if (e.code === 'ArrowDown' || e.key === 'ArrowDown') keys.ArrowDown = true;
-    
+
     if (e.code === 'Space' || e.key === ' ') {
         e.preventDefault();
         initAudio();
@@ -161,7 +161,7 @@ document.addEventListener('keydown', (e) => {
             gameState = 'PLAYING';
         }
     }
-    
+
     if (e.code === 'KeyP' || e.key === 'p' || e.key === 'P') {
         if (gameState === 'PLAYING') gameState = 'PAUSED';
         else if (gameState === 'PAUSED') gameState = 'PLAYING';
@@ -205,7 +205,7 @@ document.addEventListener('touchmove', handleTouchMove, { passive: false });
 
 document.addEventListener('touchstart', (e) => {
     if (e.target.tagName === 'BUTTON' || e.target.closest('a')) return;
-    
+
     e.preventDefault();
     initAudio();
     if (gameState === 'START' || gameState === 'GAME_OVER') {
@@ -218,7 +218,7 @@ document.addEventListener('touchstart', (e) => {
 
 document.addEventListener('click', (e) => {
     if (e.target.tagName === 'BUTTON' || e.target.closest('a')) return;
-    
+
     initAudio();
     if (gameState === 'START' || gameState === 'GAME_OVER') {
         resetGame();
@@ -277,7 +277,7 @@ function updateHazards() {
         // Check collision with ball
         let dx = ball.x - h.x;
         let dy = ball.y - h.y;
-        let dist = Math.sqrt(dx*dx + dy*dy);
+        let dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < ball.radius + h.radius) {
             playSound('wall');
             createParticles(h.x, h.y, h.color, 15);
@@ -288,19 +288,19 @@ function updateHazards() {
             let ny = dy / dist;
             ball.x = h.x + nx * (ball.radius + h.radius + 1);
             ball.y = h.y + ny * (ball.radius + h.radius + 1);
-            
+
             // reflect velocity
             let dot = (ball.dx * nx + ball.dy * ny);
             ball.dx -= 2 * dot * nx;
             ball.dy -= 2 * dot * ny;
-            
+
             // Add random unpredictable spin
             ball.dx += (Math.random() - 0.5) * 4;
             ball.dy += (Math.random() - 0.5) * 4;
-            
+
             // Normalise speed to slightly bumped
             ball.speed += 1;
-            let newDist = Math.sqrt(ball.dx*ball.dx + ball.dy*ball.dy);
+            let newDist = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
             ball.dx = (ball.dx / newDist) * ball.speed;
             ball.dy = (ball.dy / newDist) * ball.speed;
         }
@@ -310,7 +310,7 @@ function updateHazards() {
 function drawHazards() {
     hazards.forEach(h => {
         ctx.beginPath();
-        ctx.arc(h.x, h.y, h.radius, 0, Math.PI*2);
+        ctx.arc(h.x, h.y, h.radius, 0, Math.PI * 2);
         ctx.fillStyle = h.color;
         ctx.shadowColor = h.color;
         ctx.shadowBlur = 20;
@@ -318,7 +318,7 @@ function drawHazards() {
         ctx.closePath();
         ctx.fillStyle = "#fff";
         ctx.beginPath();
-        ctx.arc(h.x, h.y, h.radius * 0.4, 0, Math.PI*2);
+        ctx.arc(h.x, h.y, h.radius * 0.4, 0, Math.PI * 2);
         ctx.fill();
         ctx.closePath();
     });
@@ -390,10 +390,10 @@ function updateMutators() {
         let m = mutators[i];
         m.x += m.dx;
         m.y += m.dy;
-        
+
         // Bounce off invisible middle area bounds
         if (m.y < 50 || m.y > CANVAS_HEIGHT - 50) m.dy *= -1;
-        if (m.x < CANVAS_WIDTH/2 - 100 || m.x > CANVAS_WIDTH/2 + 100) m.dx *= -1;
+        if (m.x < CANVAS_WIDTH / 2 - 100 || m.x > CANVAS_WIDTH / 2 + 100) m.dx *= -1;
 
         m.life--;
         m.pulse += 0.1;
@@ -407,7 +407,7 @@ function updateMutators() {
         let pball = ball;
         let dx = pball.x - m.x;
         let dy = pball.y - m.y;
-        let dist = Math.sqrt(dx*dx + dy*dy);
+        let dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < pball.radius + m.radius) {
             hit = true;
         } else {
@@ -415,7 +415,7 @@ function updateMutators() {
             for (let eb of extraBalls) {
                 dx = eb.x - m.x;
                 dy = eb.y - m.y;
-                dist = Math.sqrt(dx*dx + dy*dy);
+                dist = Math.sqrt(dx * dx + dy * dy);
                 if (dist < eb.radius + m.radius) {
                     hit = true;
                     pball = eb;
@@ -464,7 +464,7 @@ function applyMutator(type, sourceBall) {
 function updateExtraBalls() {
     for (let i = extraBalls.length - 1; i >= 0; i--) {
         let eb = extraBalls[i];
-        
+
         eb.trail.push({ x: eb.x, y: eb.y, color: eb.color, scaleX: eb.scaleX, scaleY: eb.scaleY });
         if (eb.trail.length > 10) eb.trail.shift();
 
@@ -495,7 +495,7 @@ function updateExtraBalls() {
             hitPaddle.hitBump = 1.0;
             createParticles(eb.x, eb.y, hitPaddle.color, 8);
             eb.speed = Math.min(eb.speed + 0.5, MAX_BALL_SPEED);
-            let angle = (eb.y - (hitPaddle.y + hitPaddle.height/2)) / (hitPaddle.height/2) * (Math.PI/3);
+            let angle = (eb.y - (hitPaddle.y + hitPaddle.height / 2)) / (hitPaddle.height / 2) * (Math.PI / 3);
             eb.dx = (hitPaddle === player ? 1 : -1) * eb.speed * Math.cos(angle);
             eb.dy = eb.speed * Math.sin(angle);
         }
@@ -504,7 +504,7 @@ function updateExtraBalls() {
         hazards.forEach(h => {
             let dx = eb.x - h.x;
             let dy = eb.y - h.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
+            let dist = Math.sqrt(dx * dx + dy * dy);
             if (dist < eb.radius + h.radius) {
                 playSound('wall');
                 createParticles(h.x, h.y, h.color, 15);
@@ -518,7 +518,7 @@ function updateExtraBalls() {
                 eb.dx += (Math.random() - 0.5) * 4;
                 eb.dy += (Math.random() - 0.5) * 4;
                 eb.speed += 0.5;
-                let newDist = Math.sqrt(eb.dx*eb.dx + eb.dy*eb.dy);
+                let newDist = Math.sqrt(eb.dx * eb.dx + eb.dy * eb.dy);
                 eb.dx = (eb.dx / newDist) * eb.speed;
                 eb.dy = (eb.dy / newDist) * eb.speed;
             }
@@ -556,7 +556,7 @@ function drawMutators() {
         ctx.fillStyle = m.color;
         ctx.globalAlpha = 0.5;
         ctx.fill();
-        
+
         ctx.globalAlpha = 1.0;
         ctx.fillStyle = '#fff';
         ctx.shadowBlur = 10;
@@ -571,7 +571,7 @@ function drawMutators() {
 function drawExtraBalls() {
     extraBalls.forEach(eb => {
         if (ballInvisibleTimer > 0) ctx.globalAlpha = 0.2;
-        
+
         // trail
         if (ballInvisibleTimer <= 0) {
             for (let i = 0; i < eb.trail.length; i++) {
@@ -580,7 +580,7 @@ function drawExtraBalls() {
                 drawBallSphere(pos.x, pos.y, eb.radius * 0.8, pos.color, pos.scaleX, pos.scaleY, alpha);
             }
         }
-        
+
         drawBallSphere(eb.x, eb.y, eb.radius, eb.color, eb.scaleX, eb.scaleY);
         if (ballInvisibleTimer > 0) ctx.globalAlpha = 1.0;
     });
@@ -596,16 +596,16 @@ function resetBall(scorer) {
     extraBalls = [];
     mutators = [];
     ballInvisibleTimer = 0;
-    
+
     player.height = PADDLE_HEIGHT;
     computer.height = PADDLE_HEIGHT;
-    
+
     ball.color = COLOR_BALL;
     ball.scaleX = 1;
     ball.scaleY = 1;
     ball.targetScaleX = 1;
     ball.targetScaleY = 1;
-    
+
     const direction = scorer === 'player' ? -1 : 1;
     ball.dx = direction * INITIAL_BALL_SPEED;
     ball.dy = (Math.random() * 2 - 1) * INITIAL_BALL_SPEED;
@@ -633,7 +633,7 @@ function resetGame() {
 function updateScoreboard(scorer = null) {
     playerScoreEl.innerText = playerScore;
     computerScoreEl.innerText = computerScore;
-    
+
     const animateScore = (el) => {
         const dir = Math.random() > 0.5 ? 1 : -1;
         el.style.setProperty('--pop-dir', dir);
@@ -661,7 +661,7 @@ function checkCollision(b, p) {
 
     let distX = b.x - testX;
     let distY = b.y - testY;
-    let distance = Math.sqrt((distX*distX) + (distY*distY));
+    let distance = Math.sqrt((distX * distX) + (distY * distY));
 
     return distance <= b.radius;
 }
@@ -694,7 +694,7 @@ function update() {
     updateHazards();
     updateMutators();
     updateExtraBalls();
-    
+
     if (ballInvisibleTimer > 0) ballInvisibleTimer--;
 
     // Player Movement
@@ -706,7 +706,7 @@ function update() {
     // Computer AI (Smooth predictive tracking for closest incoming ball)
     let closestBall = null;
     let minDist = Infinity;
-    
+
     let allBalls = [ball, ...extraBalls];
     allBalls.forEach(b => {
         if (b.dx > 0) { // Heading towards computer
@@ -720,8 +720,8 @@ function update() {
 
     if (closestBall) {
         const computerCenter = computer.y + computer.height / 2;
-        const targetY = closestBall.y + (closestBall.dy * 5); 
-        
+        const targetY = closestBall.y + (closestBall.dy * 5);
+
         if (computerCenter < targetY - 10) {
             computer.y += COMPUTER_SPEED;
         } else if (computerCenter > targetY + 10) {
@@ -729,10 +729,10 @@ function update() {
         }
     } else {
         const computerCenter = computer.y + computer.height / 2;
-        if (computerCenter < CANVAS_HEIGHT/2 - 10) computer.y += COMPUTER_SPEED * 0.5;
-        else if (computerCenter > CANVAS_HEIGHT/2 + 10) computer.y -= COMPUTER_SPEED * 0.5;
+        if (computerCenter < CANVAS_HEIGHT / 2 - 10) computer.y += COMPUTER_SPEED * 0.5;
+        else if (computerCenter > CANVAS_HEIGHT / 2 + 10) computer.y -= COMPUTER_SPEED * 0.5;
     }
-    
+
     if (computer.y < 0) computer.y = 0;
     if (computer.y + computer.height > CANVAS_HEIGHT) computer.y = CANVAS_HEIGHT - computer.height;
 
@@ -751,12 +751,12 @@ function update() {
         ball.dy *= -1;
         if (ball.y - ball.radius < 0) ball.y = ball.radius;
         if (ball.y + ball.radius > CANVAS_HEIGHT) ball.y = CANVAS_HEIGHT - ball.radius;
-        
+
         // Squash on wall hit
         ball.scaleX = 1.3;
         ball.scaleY = 0.7;
-        
-        createParticles(ball.x, ball.y < CANVAS_HEIGHT/2 ? 0 : CANVAS_HEIGHT, ball.color, 5);
+
+        createParticles(ball.x, ball.y < CANVAS_HEIGHT / 2 ? 0 : CANVAS_HEIGHT, ball.color, 5);
     }
 
     // Paddle Collision
@@ -774,29 +774,29 @@ function update() {
         hitPaddle.hitBump = 1.0;
         ball.color = hitPaddle.color;
         rallyCount++;
-        
+
         // Spawn combo text
         if (rallyCount % 5 === 0 && rallyCount > 0) {
             const texts = ["NICE!", "HOT!", "SUPER!", "SMASH!", "ON FIRE!", "GODLIKE!", "UNSTOPPABLE!"];
             const textToUse = texts[Math.min(Math.floor(rallyCount / 5) - 1, texts.length - 1)];
             createFloatingText(ball.x, ball.y - 20, textToUse, hitPaddle.color);
         } else if (ball.speed > INITIAL_BALL_SPEED + 4) {
-             if (Math.random() < 0.2) createFloatingText(ball.x, ball.y - 20, "SPEED UP!", "#fff");
+            if (Math.random() < 0.2) createFloatingText(ball.x, ball.y - 20, "SPEED UP!", "#fff");
         }
-        
+
         hitPauseFrames = Math.min(2 + Math.floor(rallyCount / 4), 8);
         screenShake = Math.min(3 + rallyCount * 1.5, 20);
-        
+
         // Squash on paddle hit
         ball.scaleX = 0.5 - (rallyCount * 0.01);
         ball.scaleY = 1.5 + (rallyCount * 0.02);
-        
+
         createParticles(ball.x, ball.y, hitPaddle.color, 8 + Math.min(rallyCount, 15));
 
         // Combo & Style Bonus: Sharp Shot
         const hitPointRaw = (ball.y - (hitPaddle.y + hitPaddle.height / 2)) / (hitPaddle.height / 2);
         const hitPointAbs = Math.abs(hitPointRaw);
-        
+
         if (hitPointAbs > 0.85) {
             playSound('score_win'); // use a cool sound
             createFloatingText(ball.x, ball.y, "SHARP SHOT!", "#facc15");
@@ -814,21 +814,21 @@ function update() {
                 checkWinCondition();
             }
         }
-        
+
         let angle = hitPointRaw * (Math.PI / 3); // Base angle up to 60 degrees
-        
+
         // Introduce a slight random variation (approx +/- 8.5 degrees) for unpredictability
         const randomVariation = (Math.random() - 0.5) * 0.3;
         angle += randomVariation;
-        
+
         // Clamp the angle to prevent it from becoming too vertical
         const maxAngle = Math.PI / 2.4;
         if (angle > maxAngle) angle = maxAngle;
         if (angle < -maxAngle) angle = -maxAngle;
-        
+
         ball.speed = Math.min(ball.speed + 0.6 + (rallyCount * 0.03), MAX_BALL_SPEED);
         const direction = hitPaddle === player ? 1 : -1;
-        
+
         ball.dx = direction * ball.speed * Math.cos(angle);
         ball.dy = ball.speed * Math.sin(angle);
     }
@@ -876,11 +876,11 @@ function showGameOverUi() {
             if (tweetBtn) {
                 const resultMsg = winner === 'PLAYER' ? 'won' : 'lost';
                 const scoreText = `${playerScore} - ${computerScore}`;
-                const text = `I just ${resultMsg} at Premium Pong with a score of ${scoreText}! 🏓\n\nCan you beat it?`;
-                const shareUrl = window.location.href;
-                tweetBtn.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
+                const text = `I just ${resultMsg} at Retro Pong with a score of ${scoreText}! 🏓\n\nCan you beat it?`;
+                const shareUrl = "https://retropong.vercel.app/";
+                tweetBtn.href = `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
             }
-            
+
             const appFooter = document.getElementById('appFooter');
             if (appFooter) {
                 appFooter.style.display = 'block';
@@ -894,25 +894,25 @@ function showGameOverUi() {
 function drawPaddle(p) {
     const bumpW = p.hitBump * 8;
     const bumpH = p.hitBump * 16;
-    
+
     const width = p.width + bumpW;
     const height = p.height + bumpH;
-    
+
     const xOffset = p === computer ? -bumpW : 0;
     const yOffset = -bumpH / 2;
-    
+
     const grad = ctx.createLinearGradient(p.x + xOffset, p.y + yOffset, p.x + xOffset + width, p.y + yOffset);
     grad.addColorStop(0, p.color);
     grad.addColorStop(1, '#ffffff');
-    
+
     ctx.fillStyle = grad;
     ctx.shadowColor = p.color;
     ctx.shadowBlur = p.hitBump > 0 ? 15 + (p.hitBump * 15) : 5;
-    
+
     ctx.beginPath();
     ctx.roundRect(p.x + xOffset, p.y + yOffset, width, height, 6);
     ctx.fill();
-    
+
     // White flash flash overlay
     if (p.hitBump > 0) {
         ctx.fillStyle = `rgba(255, 255, 255, ${p.hitBump * 0.8})`;
@@ -920,7 +920,7 @@ function drawPaddle(p) {
         ctx.roundRect(p.x + xOffset, p.y + yOffset, width, height, 6);
         ctx.fill();
     }
-    
+
     ctx.shadowBlur = 0; // reset
 }
 
@@ -928,23 +928,23 @@ function drawBallSphere(x, y, radius, color, scaleX, scaleY, alpha = 1.0) {
     ctx.save();
     ctx.translate(x, y);
     ctx.scale(scaleX, scaleY);
-    
+
     ctx.globalAlpha = alpha;
-    
-    const grad = ctx.createRadialGradient(-radius*0.3, -radius*0.3, radius*0.1, 0, 0, radius);
+
+    const grad = ctx.createRadialGradient(-radius * 0.3, -radius * 0.3, radius * 0.1, 0, 0, radius);
     grad.addColorStop(0, '#ffffff');
     grad.addColorStop(0.4, color);
     grad.addColorStop(1, '#000000');
-    
+
     ctx.fillStyle = grad;
-    
+
     ctx.shadowColor = color;
     ctx.shadowBlur = 10 * alpha;
-    
+
     ctx.beginPath();
     ctx.arc(0, 0, radius, 0, Math.PI * 2);
     ctx.fill();
-    
+
     ctx.restore();
 }
 
@@ -990,7 +990,7 @@ function render() {
     // Draw Paddles
     drawPaddle(player);
     drawPaddle(computer);
-    
+
     drawHazards();
     drawMutators();
     drawExtraBalls();
@@ -1014,62 +1014,62 @@ function render() {
         ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(rallyCount * 0.002, 0.05)})`;
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     }
-    
+
     ctx.restore();
 
     // UI Overlays
     if (gameState === 'START') {
         ctx.fillStyle = 'rgba(11, 17, 32, 0.85)';
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        
+
         // Prominent title with subtle blue glow
         const titlePulse = Math.sin(Date.now() / 500);
         ctx.shadowColor = COLOR_PLAYER;
         ctx.shadowBlur = 20 + 10 * titlePulse;
         drawText('PONG', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 50, 88, '#fff', '800');
         ctx.shadowBlur = 0; // reset
-        
+
         const pulseAlpha = 0.4 + 0.6 * Math.sin(Date.now() / 300);
         drawText('Press Space to Start', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 40, 22, `rgba(255, 255, 255, ${pulseAlpha})`, '500');
-        
+
         drawText('Controls: Mouse or Up/Down Arrows', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 90, 14, 'rgba(255, 255, 255, 0.4)', '400');
     } else if (gameState === 'PAUSED') {
         ctx.fillStyle = 'rgba(11, 17, 32, 0.7)';
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        
+
         drawText('PAUSED', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 48, '#fff', '700');
-        
+
         const pulseAlpha = 0.5 + 0.5 * Math.sin(Date.now() / 400);
         drawText('Press P to Resume', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50, 18, `rgba(255, 255, 255, ${pulseAlpha})`, '500');
     } else if (gameState === 'GAME_OVER') {
         ctx.fillStyle = 'rgba(11, 17, 32, 0.8)';
         ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        
+
         const winColor = winner === 'PLAYER' ? COLOR_PLAYER : COLOR_COMPUTER;
         const fullText = `${winner} WINS`;
-        
+
         // Typewriter effect
         const elapsed = Date.now() - gameOverStartTime;
         const charsToShow = Math.min(fullText.length, Math.floor(elapsed / 150));
         const showCursor = Math.floor(elapsed / 400) % 2 === 0;
         const displayText = fullText.substring(0, charsToShow) + (showCursor ? '█' : '');
-        
+
         // Subtle pulsing glow effect
         const pulse = Math.sin(Date.now() / 300);
         ctx.shadowColor = winColor;
         ctx.shadowBlur = 15 + 10 * pulse;
         ctx.globalAlpha = 0.85 + 0.15 * pulse;
-        
+
         // Calculate starting X to keep it centered overall
         ctx.font = `700 56px 'Inter', sans-serif`;
         const totalWidth = ctx.measureText(fullText + '█').width;
         const startX = CANVAS_WIDTH / 2 - totalWidth / 2;
-        
+
         drawText(displayText, startX, CANVAS_HEIGHT / 2 - 30, 56, winColor, '700', 'left');
-        
+
         ctx.shadowBlur = 0; // Reset shadow
         ctx.globalAlpha = 1.0; // Reset alpha
-        
+
         if (charsToShow === fullText.length) {
             const pulseAlpha = 0.5 + 0.5 * Math.sin(Date.now() / 400);
             drawText('Click or Press Space to Play Again', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 40, 18, `rgba(255, 255, 255, ${pulseAlpha})`, '500');
