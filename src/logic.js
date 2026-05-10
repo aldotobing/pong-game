@@ -255,21 +255,11 @@ export function update() {
 
         // Combo & Style Bonus: Sharp Shot
         if (hitPointAbs > 0.85) {
-            playSound('score_win'); // use a cool sound
+            playSound('score_win');
             createFloatingText(state.ball.x, state.ball.y, "SHARP SHOT!", "#facc15");
             state.ball.speed += 3; // Huge speed boost
             state.screenShake = 15;
             state.hitPauseFrames = 10;
-            // Reward extra point
-            if (hitPaddle === state.player) {
-                state.playerScore++;
-                updateScoreboard('player');
-                checkWinCondition();
-            } else {
-                state.computerScore++;
-                updateScoreboard('computer');
-                checkWinCondition();
-            }
         }
 
         let angle = hitPointRaw * (Math.PI / 3); // Base angle up to 60 degrees
