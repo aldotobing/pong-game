@@ -21,7 +21,28 @@ body, html {
     overflow: hidden;
 }
 
-/* Ambient Background Orbs */
+.scoreboard-overlay {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 80px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.scoreboard-overlay .score {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    user-select: none;
+}
 .ambient-orb {
     position: absolute;
     border-radius: 50%;
@@ -166,17 +187,45 @@ header {
     to { opacity: 1; transform: translateY(0); }
 }
 
+.bahlil-meme {
+    margin-bottom: 20px;
+    filter: saturate(0.8) brightness(0.9) contrast(1.1);
+    mix-blend-mode: overlay;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.bahlil-meme:hover {
+    opacity: 1;
+    mix-blend-mode: normal;
+    filter: none;
+}
+
+.bahlil-meme img {
+    width: 200px;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .game-over-ui {
     position: absolute;
-    top: 65%;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.share-buttons {
     display: flex;
     flex-direction: row;
     gap: 12px;
     align-items: center;
-    z-index: 20;
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 .tweet-share-btn, .ig-share-btn {

@@ -269,14 +269,26 @@ export function update() {
         playSound('score_lose');
         state.computerScore++;
         updateScoreboard('computer');
-        createParticles(20, state.ball.y, constants.COLOR_COMPUTER, 25);
+        
+        // Epic Score Effect
+        state.screenShake = 30;
+        state.hitPauseFrames = 20;
+        createParticles(constants.CANVAS_WIDTH / 2, constants.CANVAS_HEIGHT / 2, constants.COLOR_COMPUTER, 100);
+        createFloatingText(constants.CANVAS_WIDTH / 2, constants.CANVAS_HEIGHT / 2, "POINT CPU!", constants.COLOR_COMPUTER);
+        
         checkWinCondition();
         if (state.gameState === 'PLAYING') resetBall('computer');
     } else if (state.ball.x > constants.CANVAS_WIDTH + 50) {
         playSound('score_win');
         state.playerScore++;
         updateScoreboard('player');
-        createParticles(constants.CANVAS_WIDTH - 20, state.ball.y, constants.COLOR_PLAYER, 25);
+        
+        // Epic Score Effect
+        state.screenShake = 40;
+        state.hitPauseFrames = 25;
+        createParticles(constants.CANVAS_WIDTH / 2, constants.CANVAS_HEIGHT / 2, constants.COLOR_PLAYER, 150);
+        createFloatingText(constants.CANVAS_WIDTH / 2, constants.CANVAS_HEIGHT / 2, "POINT PLAYER!", constants.COLOR_PLAYER);
+        
         checkWinCondition();
         if (state.gameState === 'PLAYING') resetBall('player');
     }
@@ -303,6 +315,10 @@ export function showGameOverUi() {
         setTimeout(() => {
             ui.style.display = 'flex';
             ui.style.animation = 'fadeInUi 0.5s ease forwards';
+            
+            const bahlil = document.getElementById('bahlilMeme');
+            if (bahlil) bahlil.style.display = 'block';
+
             const tweetBtn = document.getElementById("tweetShare");
             if (tweetBtn) {
                 const resultMsg = state.winner === 'PLAYER' ? 'won' : 'lost';
