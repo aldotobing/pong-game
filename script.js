@@ -999,7 +999,7 @@ function showGameOverUi() {
                         }
 
                         const file = new File([blob], 'retropong-score.png', { type: 'image/png' });
-                        const shareText = `I just ${winner === 'PLAYER' ? 'won' : 'lost'} at Retro Pong! 🏓\n\nCan you beat it?`;
+                        const shareText = `I just ${winner === 'PLAYER' ? 'won' : 'lost'} at Retro Pong! 🏓\n\nCan you beat it?\n\nPlay here: https://retropong.vercel.app/`;
 
                         if (navigator.canShare && navigator.canShare({ files: [file] })) {
                             try {
@@ -1013,8 +1013,7 @@ function showGameOverUi() {
                             }
                         } else {
                             try {
-                                const fullMsg = `${shareText}\nhttps://retropong.vercel.app/`;
-                                await navigator.clipboard.writeText(fullMsg);
+                                await navigator.clipboard.writeText(shareText);
                                 alert("Score text copied! Your browser doesn't support direct image sharing, but you can take a screenshot and share it manually.");
                             } catch (clipErr) {
                                 console.error('Clipboard failed:', clipErr);
