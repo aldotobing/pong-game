@@ -88,13 +88,13 @@ export function drawNet() {
 
 export function drawCorruptionStrings() {
     const slogans = [
-        "19 Jt Lapangan Kerja",
+        "19 Jt lapangan Kerja",
         "Makan Bergizi Gratis",
         "Kawal Putusan MK",
         "Peringatan Darurat",
         "Dinasti Politik",
         "Revisi UU Pilkada",
-        "Bansos Jelang Pemilu"
+        "Haee.. antek antek asenggg!"
     ];
 
     // Determine which slogan to show based on corruption timer
