@@ -46,10 +46,13 @@ export function resetGame() {
     if (appFooter) appFooter.style.display = 'none';
 }
 
-// Update Scoreboard
+// Update Scoreboard & UI
 export function updateScoreboard(scorer = null) {
     dom.playerScoreEl.innerText = state.playerScore;
     dom.computerScoreEl.innerText = state.computerScore;
+
+    // Update ultimate bar
+    dom.ultimateBarEl.style.width = `${state.ultimateEnergy}%`;
 
     const animateScore = (el) => {
         const dir = Math.random() > 0.5 ? 1 : -1;
@@ -63,6 +66,24 @@ export function updateScoreboard(scorer = null) {
 
     if (scorer === 'player') animateScore(dom.playerScoreEl);
     if (scorer === 'computer') animateScore(dom.computerScoreEl);
+}
+
+// Ultimate Burst Ability
+export function triggerUltimate() {
+    if (state.ultimateEnergy < 100) return;
+    
+    state.ultimateEnergy = 0;
+    updateScoreboard(); // Reset bar UI
+    
+    // Time Dilation Effect
+    state.gameSpeedMultiplier = 0.3; // Global game speed multiplier
+    
+    createFloatingText(constants.CANVAS_WIDTH / 2, constants.CANVAS_HEIGHT / 2, "CHRONOS OVERLOAD!", "#f59e0b");
+    playSound('score_win');
+    
+    setTimeout(() => {
+        state.gameSpeedMultiplier = 1.0;
+    }, 3000);
 }
 
 // Collision Detection (Circle vs Rectangle)
@@ -193,6 +214,10 @@ export function update() {
         state.ball.color = hitPaddle.color;
         state.rallyCount++;
 
+        // Energy gain
+        state.ultimateEnergy = Math.min(state.ultimateEnergy + 2, 100);
+        updateScoreboard(); // Update energy bar UI
+
         // Determine if this was a perfect hit (inner 20% of paddle)
         const hitPointRaw = (state.ball.y - (hitPaddle.y + hitPaddle.height / 2)) / (hitPaddle.height / 2);
         const hitPointAbs = Math.abs(hitPointRaw);
@@ -201,6 +226,7 @@ export function update() {
         if (isPerfect) {
             state.perfectStreak++;
             state.multiplier = Math.min(state.perfectStreak + 1, 5);
+            state.ultimateEnergy = Math.min(state.ultimateEnergy + 8, 100); // Bonus energy
             createFloatingText(state.ball.x, state.ball.y - 40, `PERFECT! x${state.multiplier}`, '#f59e0b');
             playSound('score_win');
             state.screenShake += 5;
@@ -317,7 +343,7 @@ export function showGameOverUi() {
             ui.style.animation = 'fadeInUi 0.5s ease forwards';
             
             const bahlil = document.getElementById('bahlilMeme');
-            if (bahlil) bahlil.style.display = 'block';
+            if (bahlil && state.winner === 'CPU') bahlil.style.display = 'block';
 
             const tweetBtn = document.getElementById("tweetShare");
             if (tweetBtn) {
@@ -440,4 +466,3 @@ export function showGameOverUi() {
         }, 1200);
     }
 }
-

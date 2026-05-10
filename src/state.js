@@ -5,6 +5,7 @@ export const dom = {
     ctx: document.getElementById('gameCanvas') ? document.getElementById('gameCanvas').getContext('2d') : null,
     playerScoreEl: document.getElementById('playerScore'),
     computerScoreEl: document.getElementById('computerScore'),
+    ultimateBarEl: document.getElementById('ultimateBar'),
     gameOverUi: document.getElementById('gameOverUi'),
     mobileHint: document.getElementById('mobileHint'),
     appFooter: document.getElementById('appFooter')
@@ -19,6 +20,7 @@ export const state = {
     computerScore: 0,
     perfectStreak: 0,
     multiplier: 1,
+    ultimateEnergy: 0,
     winner: '',
     gameOverStartTime: 0,
     particles: [],

@@ -1,7 +1,7 @@
 import { state, dom } from './state.js';
 import * as constants from './constants.js';
 import { playSound } from './audio.js';
-import { checkCollision, updateScoreboard, checkWinCondition } from './logic.js';
+import { checkCollision, checkWinCondition } from './logic.js';
 import { drawBallSphere } from './render.js';
 
 // Particle System

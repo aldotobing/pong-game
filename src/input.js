@@ -20,9 +20,10 @@ document.addEventListener('keydown', (e) => {
         }
     }
 
-    if (e.code === 'KeyP' || e.key === 'p' || e.key === 'P') {
-        if (state.gameState === 'PLAYING') state.gameState = 'PAUSED';
-        else if (state.gameState === 'PAUSED') state.gameState = 'PLAYING';
+    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.key === 'Shift') {
+        if (state.ultimateEnergy >= 100 && state.gameState === 'PLAYING') {
+            triggerUltimate();
+        }
     }
 
     if (['ArrowUp', 'ArrowDown', 'Space'].includes(e.code)) {
