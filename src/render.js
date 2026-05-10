@@ -160,17 +160,21 @@ export function render() {
             state.corruption.img.onload = () => { console.log("Meme loaded"); };
         }
 
-        if (state.corruption.img && state.corruption.img.complete) {
+        if (state.corruption.img.complete && state.corruption.img.naturalWidth > 0) {
             dom.ctx.save();
             dom.ctx.beginPath();
             dom.ctx.arc(state.ball.x, state.ball.y, state.ball.radius * 6, 0, Math.PI * 2);
             dom.ctx.clip();
             dom.ctx.drawImage(state.corruption.img, state.ball.x - state.ball.radius * 6, state.ball.y - state.ball.radius * 6, state.ball.radius * 12, state.ball.radius * 12);
             dom.ctx.restore();
+        } else if (state.corruption.img.complete && state.corruption.img.naturalWidth === 0) {
+            // Image load failed (broken)
+            drawBallSphere(state.ball.x, state.ball.y, state.ball.radius * 2, '#ef4444', state.ball.scaleX, state.ball.scaleY);
         } else {
-            // Fallback while loading
+            // Still loading
             drawBallSphere(state.ball.x, state.ball.y, state.ball.radius * 2, '#ef4444', state.ball.scaleX, state.ball.scaleY);
         }
+
     } else if (state.ballInvisibleTimer <= 0) {
 
         drawBallSphere(state.ball.x, state.ball.y, state.ball.radius, state.ball.color, state.ball.scaleX, state.ball.scaleY);
