@@ -17,6 +17,8 @@ export const state = {
     gameState: 'START',
     playerScore: 0,
     computerScore: 0,
+    perfectStreak: 0,
+    multiplier: 1,
     winner: '',
     gameOverStartTime: 0,
     particles: [],

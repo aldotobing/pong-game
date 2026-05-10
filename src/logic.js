@@ -193,6 +193,22 @@ export function update() {
         state.ball.color = hitPaddle.color;
         state.rallyCount++;
 
+        // Determine if this was a perfect hit (inner 20% of paddle)
+        const hitPointRaw = (state.ball.y - (hitPaddle.y + hitPaddle.height / 2)) / (hitPaddle.height / 2);
+        const hitPointAbs = Math.abs(hitPointRaw);
+        const isPerfect = hitPointAbs < 0.2;
+
+        if (isPerfect) {
+            state.perfectStreak++;
+            state.multiplier = Math.min(state.perfectStreak + 1, 5);
+            createFloatingText(state.ball.x, state.ball.y - 40, `PERFECT! x${state.multiplier}`, '#f59e0b');
+            playSound('score_win');
+            state.screenShake += 5;
+        } else {
+            state.perfectStreak = 0;
+            state.multiplier = 1;
+        }
+
         // Spawn combo text
         if (state.rallyCount % 5 === 0 && state.rallyCount > 0) {
             const texts = ["NICE!", "HOT!", "SUPER!", "SMASH!", "ON FIRE!", "GODLIKE!", "UNSTOPPABLE!"];
@@ -212,9 +228,6 @@ export function update() {
         createParticles(state.ball.x, state.ball.y, hitPaddle.color, 8 + Math.min(state.rallyCount, 15));
 
         // Combo & Style Bonus: Sharp Shot
-        const hitPointRaw = (state.ball.y - (hitPaddle.y + hitPaddle.height / 2)) / (hitPaddle.height / 2);
-        const hitPointAbs = Math.abs(hitPointRaw);
-
         if (hitPointAbs > 0.85) {
             playSound('score_win'); // use a cool sound
             createFloatingText(state.ball.x, state.ball.y, "SHARP SHOT!", "#facc15");
