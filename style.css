@@ -336,23 +336,25 @@ canvas {
         height: 100dvh;
         width: 100vw;
     }
-    header {
+    
+    .scoreboard-overlay {
         position: absolute;
-        top: calc(env(safe-area-inset-top, 0px) + 10px);
-        z-index: 50;
-        pointer-events: none;
+        top: 5vh;
+        left: 0;
         width: 100%;
         display: flex;
         justify-content: center;
+        align-items: center;
+        gap: 30px;
+        pointer-events: none;
+        z-index: 10;
+        margin: 0;
     }
-    .scoreboard { 
-        gap: 20px; 
+
+    .scoreboard-overlay .score {
+        font-size: 36px;
     }
-    .score-section { gap: 16px; }
-    .score { font-size: 36px; width: 44px; }
-    .label { font-size: 11px; letter-spacing: 2px; margin-top: 4px; }
-    .divider { height: 32px; width: 2px; }
-    
+
     .canvas-container {
         max-width: 100vw;
         height: 100dvh;
