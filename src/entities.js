@@ -396,10 +396,14 @@ export function applyMutator(type, sourceBall) {
         const slogans = [
             "19 Jt lapangan Kerja",
             "Makan Bergizi Gratis",
-            "Kawal Putusan MK",
             "Peringatan Darurat",
             "Dinasti Politik",
-            "Revisi UU Pilkada",
+            "Raja Jawa Gemoy",
+            "PPN 12 Persen",
+            "Indonesia Gelap",
+            "Kabur Aja Dulu",
+            "Mahkamah Keluarga",
+            "Agak Laen!",
             "Haee.. antek antek asenggg!"
         ];
         
