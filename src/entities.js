@@ -236,14 +236,14 @@ export function updateExtraBalls() {
         });
 
         // Scoring
-        if (eb.x < -50) {
+        // Check if ball is actually out of bounds (past paddles)
+        if (eb.x < -eb.radius - 10) {
             state.computerScore++;
             createParticles(20, eb.y, constants.COLOR_COMPUTER, 15);
             state.extraBalls.splice(i, 1);
             checkWinCondition();
-        } else if (eb.x > constants.CANVAS_WIDTH + 50) {
+        } else if (eb.x > constants.CANVAS_WIDTH + eb.radius + 10) {
             state.playerScore++;
-            createParticles(constants.CANVAS_WIDTH - 20, eb.y, constants.COLOR_PLAYER, 15);
             createParticles(constants.CANVAS_WIDTH - 20, eb.y, constants.COLOR_PLAYER, 15);
             state.extraBalls.splice(i, 1);
             checkWinCondition();
@@ -256,24 +256,49 @@ export function drawMutators() {
         dom.ctx.save();
         dom.ctx.beginPath();
         let r = m.radius + Math.sin(m.pulse) * 3;
-        dom.ctx.arc(m.x, m.y, r, 0, Math.PI * 2);
-        dom.ctx.fillStyle = "transparent";
-        dom.ctx.strokeStyle = m.color;
-        dom.ctx.lineWidth = 3;
-        dom.ctx.shadowColor = m.color;
-        dom.ctx.shadowBlur = ((Math.sin(m.pulse * 2) + 1) / 2) * 20 + 5;
-        dom.ctx.stroke();
-        dom.ctx.fillStyle = m.color;
-        dom.ctx.globalAlpha = 0.5;
-        dom.ctx.fill();
 
-        dom.ctx.globalAlpha = 1.0;
-        dom.ctx.fillStyle = '#fff';
-        dom.ctx.shadowBlur = 10;
-        dom.ctx.font = `bold 16px 'Space Grotesk', sans-serif`;
-        dom.ctx.textAlign = 'center';
-        dom.ctx.textBaseline = 'middle';
-        dom.ctx.fillText('?', m.x, m.y);
+        if (m.type === 'CORRUPTION_BALL') {
+            // Pulsing Warning Triangle
+            const sides = 3;
+            const size = r * 1.2;
+            dom.ctx.moveTo(m.x, m.y - size);
+            for (let i = 1; i <= sides; i++) {
+                const angle = (i * 2 * Math.PI / sides) - Math.PI / 2;
+                dom.ctx.lineTo(m.x + size * Math.cos(angle), m.y + size * Math.sin(angle));
+            }
+            dom.ctx.strokeStyle = '#ef4444';
+            dom.ctx.lineWidth = 4;
+            dom.ctx.shadowColor = '#ef4444';
+            dom.ctx.shadowBlur = ((Math.sin(m.pulse * 2) + 1) / 2) * 20 + 5;
+            dom.ctx.stroke();
+            dom.ctx.fillStyle = '#b91c1c';
+            dom.ctx.fill();
+
+            // Exclamation mark
+            dom.ctx.fillStyle = '#fff';
+            dom.ctx.font = `bold ${r}px sans-serif`;
+            dom.ctx.textAlign = 'center';
+            dom.ctx.textBaseline = 'middle';
+            dom.ctx.fillText('!', m.x, m.y + 2);
+        } else {
+            // Standard mutator circle
+            dom.ctx.arc(m.x, m.y, r, 0, Math.PI * 2);
+            dom.ctx.strokeStyle = m.color;
+            dom.ctx.lineWidth = 3;
+            dom.ctx.shadowColor = m.color;
+            dom.ctx.shadowBlur = ((Math.sin(m.pulse * 2) + 1) / 2) * 20 + 5;
+            dom.ctx.stroke();
+            dom.ctx.fillStyle = m.color;
+            dom.ctx.globalAlpha = 0.5;
+            dom.ctx.fill();
+
+            dom.ctx.globalAlpha = 1.0;
+            dom.ctx.fillStyle = '#fff';
+            dom.ctx.font = `bold 16px 'Space Grotesk', sans-serif`;
+            dom.ctx.textAlign = 'center';
+            dom.ctx.textBaseline = 'middle';
+            dom.ctx.fillText('?', m.x, m.y);
+        }
         dom.ctx.restore();
     });
 }
@@ -308,10 +333,10 @@ export function updateMutators() {
             typeObj = constants.MUTATOR_TYPES.find(m => m.type === 'CORRUPTION_BALL');
         } else {
             const others = constants.MUTATOR_TYPES.filter(m => m.type !== 'CORRUPTION_BALL');
-            // Weight: MULTIBALL (1), SHRINK (5), INVISIBLE (5), GRAVITY_WELL (5)
+            // Weight: MULTIBALL (3), SHRINK (2), INVISIBLE (2), GRAVITY_WELL (2)
             const weightedOthers = [];
             others.forEach(m => {
-                const weight = (m.type === 'MULTIBALL') ? 1 : 5;
+                const weight = (m.type === 'MULTIBALL') ? 3 : 2;
                 for(let i=0; i<weight; i++) weightedOthers.push(m);
             });
             typeObj = weightedOthers[Math.floor(Math.random() * weightedOthers.length)];
@@ -381,7 +406,7 @@ export function updateMutators() {
 
 export function applyMutator(type, sourceBall) {
     if (type === 'MULTIBALL') {
-        // spawn 2 extra balls
+        // spawn 2 extra balls with capped speed
         for (let i = 0; i < 2; i++) {
             state.extraBalls.push({
                 x: sourceBall.x,
@@ -389,7 +414,7 @@ export function applyMutator(type, sourceBall) {
                 dx: sourceBall.dx + (Math.random() - 0.5) * 6,
                 dy: sourceBall.dy + (Math.random() - 0.5) * 6,
                 radius: sourceBall.radius,
-                speed: sourceBall.speed,
+                speed: Math.min(sourceBall.speed, 15), // Cap spawn speed
                 trail: [],
                 color: '#10b981',
                 scaleX: 1, scaleY: 1
@@ -465,9 +490,9 @@ export function updateGravityWells() {
             let dy = gw.y - b.y;
             let dist = Math.sqrt(dx * dx + dy * dy);
             if (dist > 0 && dist < 200) { // Attraction radius
-                let force = (200 - dist) / 200 * 0.15;
-                b.dx += (dx / dist) * force;
-                b.dy += (dy / dist) * force;
+                let force = (200 - dist) / 200 * 0.5; // Increased force from 0.15 to 0.5
+                b.dx += (dx / dist) * force * effectiveSpeed; // Multiply by effectiveSpeed
+                b.dy += (dy / dist) * force * effectiveSpeed; // Multiply by effectiveSpeed
             }
         });
     }
