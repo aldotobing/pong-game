@@ -87,37 +87,35 @@ export function drawNet() {
 }
 
 export function drawCorruptionStrings() {
-    const slogans = [
-        "19 Jt lapangan Kerja",
-        "Makan Bergizi Gratis",
-        "Kawal Putusan MK",
-        "Peringatan Darurat",
-        "Dinasti Politik",
-        "Revisi UU Pilkada",
-        "Haee.. antek antek asenggg!"
-    ];
+    const slogans = state.corruption.slogans || [];
+    const elapsed = 300 - state.corruption.timer;
 
-    // Determine which slogan to show based on corruption timer
-    // Timer goes from 300 down to 0 over 5 seconds.
-    const durationPerSlogan = 300 / slogans.length;
-    const currentIndex = Math.floor((300 - state.corruption.timer) / durationPerSlogan);
-    const slogan = slogans[currentIndex] || slogans[slogans.length - 1];
+    slogans.forEach(s => {
+        // Only start revealing after startTime
+        if (elapsed < s.startTime) return;
 
-    // Fade effect based on timer within the slogan's duration
-    const progress = (300 - state.corruption.timer) % durationPerSlogan;
-    let alpha = 1;
-    if (progress < 30) alpha = progress / 30; // Fade in
-    else if (progress > durationPerSlogan - 30) alpha = (durationPerSlogan - progress) / 30; // Fade out
+        // Simple drift movement
+        s.x += s.vx;
+        s.y += s.vy;
 
-    dom.ctx.save();
-    dom.ctx.globalAlpha = alpha;
-    dom.ctx.fillStyle = 'rgba(220, 38, 38, 0.9)'; // Red
-    dom.ctx.font = "bold 40px 'Space Grotesk', sans-serif";
-    dom.ctx.textAlign = 'center';
-    dom.ctx.shadowColor = 'black';
-    dom.ctx.shadowBlur = 10;
-    dom.ctx.fillText(slogan, constants.CANVAS_WIDTH / 2, constants.CANVAS_HEIGHT / 2);
-    dom.ctx.restore();
+        // Bounce off edges
+        if (s.x < 50 || s.x > constants.CANVAS_WIDTH - 50) s.vx *= -1;
+        if (s.y < 50 || s.y > constants.CANVAS_HEIGHT - 50) s.vy *= -1;
+
+        // Animate opacity: fade in over 30 frames
+        const age = elapsed - s.startTime;
+        s.opacity = Math.min(1, age / 30);
+
+        dom.ctx.save();
+        dom.ctx.globalAlpha = s.opacity;
+        dom.ctx.fillStyle = 'rgba(220, 38, 38, 0.9)'; // Red
+        dom.ctx.font = "bold 30px 'Space Grotesk', sans-serif";
+        dom.ctx.textAlign = 'center';
+        dom.ctx.shadowColor = 'black';
+        dom.ctx.shadowBlur = 5;
+        dom.ctx.fillText(s.text, s.x, s.y);
+        dom.ctx.restore();
+    });
 }
 
 export function render() {

@@ -391,6 +391,27 @@ export function applyMutator(type, sourceBall) {
         state.corruption.active = true;
         state.corruption.timer = 300; // 5 seconds at 60fps
         state.corruption.meme = Math.random() > 0.5 ? '/prabs.jpg' : '/joks.jpg';
+        
+        // Initialize dynamic slogans
+        const slogans = [
+            "19 Jt lapangan Kerja",
+            "Makan Bergizi Gratis",
+            "Kawal Putusan MK",
+            "Peringatan Darurat",
+            "Dinasti Politik",
+            "Revisi UU Pilkada",
+            "Haee.. antek antek asenggg!"
+        ];
+        
+        state.corruption.slogans = slogans.map((text, i) => ({
+            text,
+            x: Math.random() * 0.6 * constants.CANVAS_WIDTH + 0.2 * constants.CANVAS_WIDTH,
+            y: Math.random() * 0.6 * constants.CANVAS_HEIGHT + 0.2 * constants.CANVAS_HEIGHT,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: (Math.random() - 0.5) * 1.5,
+            opacity: 0,
+            startTime: i * 40 // Stagger start times (frames)
+        }));
     }
 }
 
