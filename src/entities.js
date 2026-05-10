@@ -463,8 +463,9 @@ export function applyMutator(type, sourceBall) {
 export function updateCorruptionChaos() {
     if (state.corruption.active) {
         state.corruption.timer--;
-        state.screenShake = 20; // Intense shake
-        state.gameSpeedMultiplier = 0.4; // Slow motion
+        // Reduced screen shake intensity for better comfort
+        state.screenShake = 5; 
+        state.gameSpeedMultiplier = 0.6; // Less drastic slow motion
         
         if (state.corruption.timer <= 0) {
             state.corruption.active = false;
