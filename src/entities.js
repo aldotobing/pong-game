@@ -395,6 +395,7 @@ export function applyMutator(type, sourceBall) {
         // Initialize dynamic slogans
         const slogans = [
             "19 Jt lapangan Kerja",
+            "Haee.. antek antek asenggg!",
             "Makan Bergizi Gratis",
             "Peringatan Darurat",
             "Dinasti Politik",
@@ -403,8 +404,7 @@ export function applyMutator(type, sourceBall) {
             "Indonesia Gelap",
             "Kabur Aja Dulu",
             "Mahkamah Keluarga",
-            "Agak Laen!",
-            "Haee.. antek antek asenggg!"
+            "Agak Laen!"
         ];
         
         state.corruption.slogans = slogans.map((text, i) => ({
