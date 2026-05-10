@@ -291,7 +291,7 @@ export function update(dt = 1/60) {
         }
 
         // Calculate new trajectory
-        state.ball.speed = Math.min(state.ball.speed + 0.6 + (state.rallyCount * 0.03), constants.MAX_BALL_SPEED);
+        state.ball.speed = Math.min(state.ball.speed + 0.3 + (state.rallyCount * 0.01), constants.MAX_BALL_SPEED);
         const direction = hitPaddle === state.player ? 1 : -1;
 
         // Base velocity calculation

@@ -228,7 +228,7 @@ export function updateExtraBalls() {
                 eb.dy -= 2 * dot * ny;
                 eb.dx += (Math.random() - 0.5) * 4;
                 eb.dy += (Math.random() - 0.5) * 4;
-                eb.speed += 0.5;
+                eb.speed += 0.2; // Reduced speed boost
                 let newDist = Math.sqrt(eb.dx * eb.dx + eb.dy * eb.dy);
                 eb.dx = (eb.dx / newDist) * eb.speed;
                 eb.dy = (eb.dy / newDist) * eb.speed;
