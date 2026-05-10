@@ -86,6 +86,40 @@ export function drawNet() {
     dom.ctx.setLineDash([]); // reset
 }
 
+export function drawCorruptionStrings() {
+    const slogans = [
+        "19 Jt Lapangan Kerja",
+        "Makan Bergizi Gratis",
+        "Kawal Putusan MK",
+        "Peringatan Darurat",
+        "Dinasti Politik",
+        "Revisi UU Pilkada",
+        "Bansos Jelang Pemilu"
+    ];
+
+    // Determine which slogan to show based on corruption timer
+    // Timer goes from 300 down to 0 over 5 seconds.
+    const durationPerSlogan = 300 / slogans.length;
+    const currentIndex = Math.floor((300 - state.corruption.timer) / durationPerSlogan);
+    const slogan = slogans[currentIndex] || slogans[slogans.length - 1];
+
+    // Fade effect based on timer within the slogan's duration
+    const progress = (300 - state.corruption.timer) % durationPerSlogan;
+    let alpha = 1;
+    if (progress < 30) alpha = progress / 30; // Fade in
+    else if (progress > durationPerSlogan - 30) alpha = (durationPerSlogan - progress) / 30; // Fade out
+
+    dom.ctx.save();
+    dom.ctx.globalAlpha = alpha;
+    dom.ctx.fillStyle = 'rgba(220, 38, 38, 0.9)'; // Red
+    dom.ctx.font = "bold 40px 'Space Grotesk', sans-serif";
+    dom.ctx.textAlign = 'center';
+    dom.ctx.shadowColor = 'black';
+    dom.ctx.shadowBlur = 10;
+    dom.ctx.fillText(slogan, constants.CANVAS_WIDTH / 2, constants.CANVAS_HEIGHT / 2);
+    dom.ctx.restore();
+}
+
 export function render() {
     dom.ctx.clearRect(0, 0, constants.CANVAS_WIDTH, constants.CANVAS_HEIGHT);
 
@@ -116,8 +150,29 @@ export function render() {
     drawExtraBalls();
     drawGravityWells();
 
+    if (state.corruption.active) {
+        drawCorruptionStrings();
+    }
+
     // Draw Ball
-    if (state.ballInvisibleTimer <= 0) {
+    if (state.corruption.active) {
+        if (!state.corruption.img || state.corruption.img.src.indexOf(state.corruption.meme) === -1) {
+            state.corruption.img = new Image();
+            state.corruption.img.src = state.corruption.meme;
+        }
+
+        if (state.corruption.img.complete) {
+            dom.ctx.save();
+            dom.ctx.beginPath();
+            dom.ctx.arc(state.ball.x, state.ball.y, state.ball.radius * 6, 0, Math.PI * 2);
+            dom.ctx.clip();
+            dom.ctx.drawImage(state.corruption.img, state.ball.x - state.ball.radius * 6, state.ball.y - state.ball.radius * 6, state.ball.radius * 12, state.ball.radius * 12);
+            dom.ctx.restore();
+        } else {
+            // Fallback while loading
+            drawBallSphere(state.ball.x, state.ball.y, state.ball.radius * 2, '#ef4444', state.ball.scaleX, state.ball.scaleY);
+        }
+    } else if (state.ballInvisibleTimer <= 0) {
         drawBallSphere(state.ball.x, state.ball.y, state.ball.radius, state.ball.color, state.ball.scaleX, state.ball.scaleY);
     } else {
         // Draw just a faint glimmer when invisible
@@ -125,6 +180,7 @@ export function render() {
         drawBallSphere(state.ball.x, state.ball.y, state.ball.radius, state.ball.color, state.ball.scaleX, state.ball.scaleY);
         dom.ctx.globalAlpha = 1.0;
     }
+
 
     // Draw Particles
     drawParticles();

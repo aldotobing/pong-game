@@ -32,6 +32,7 @@ export const state = {
     mutators: [],
     extraBalls: [],
     gravityWells: [],
+    corruption: { active: false, timer: 0, meme: null },
     ballInvisibleTimer: 0,
     player: {
         x: 40,

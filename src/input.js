@@ -1,7 +1,7 @@
 import { state, dom } from './state.js';
 import * as constants from './constants.js';
 import { initAudio } from './audio.js';
-import { resetGame } from './logic.js';
+import { resetGame, triggerUltimate } from './logic.js';
 
 export function setupInput() {
 // Input Handling

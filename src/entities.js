@@ -225,13 +225,12 @@ export function updateExtraBalls() {
         // Scoring
         if (eb.x < -50) {
             state.computerScore++;
-            updateScoreboard('computer');
             createParticles(20, eb.y, constants.COLOR_COMPUTER, 15);
             state.extraBalls.splice(i, 1);
             checkWinCondition();
         } else if (eb.x > constants.CANVAS_WIDTH + 50) {
             state.playerScore++;
-            updateScoreboard('player');
+            createParticles(constants.CANVAS_WIDTH - 20, eb.y, constants.COLOR_PLAYER, 15);
             createParticles(constants.CANVAS_WIDTH - 20, eb.y, constants.COLOR_PLAYER, 15);
             state.extraBalls.splice(i, 1);
             checkWinCondition();
@@ -285,8 +284,24 @@ export function drawExtraBalls() {
 }
 
 export function updateMutators() {
-    // Spawn logic
-    if (state.gameState === 'PLAYING' && Math.random() < 0.003 && state.mutators.length === 0) {
+    // Force spawn logic: if it's the start of the game and no mutators, spawn one
+    if (state.gameState === 'PLAYING' && state.mutators.length === 0 && state.rallyCount === 1) {
+        // Find the corruption ball config
+        const typeObj = constants.MUTATOR_TYPES.find(m => m.type === 'CORRUPTION_BALL');
+        state.mutators.push({
+            x: constants.CANVAS_WIDTH / 2,
+            y: constants.CANVAS_HEIGHT / 2,
+            dx: (Math.random() - 0.5) * 2,
+            dy: (Math.random() - 0.5) * 2,
+            radius: 18,
+            ...typeObj,
+            life: 600,
+            pulse: 0
+        });
+    }
+
+    // Normal Spawn logic
+    else if (state.gameState === 'PLAYING' && Math.random() < 0.003 && state.mutators.length === 0) {
         let typeObj = constants.MUTATOR_TYPES[Math.floor(Math.random() * constants.MUTATOR_TYPES.length)];
         state.mutators.push({
             x: constants.CANVAS_WIDTH / 2,
@@ -372,12 +387,24 @@ export function applyMutator(type, sourceBall) {
         }
     } else if (type === 'INVISIBLE') {
         state.ballInvisibleTimer = 180;
-    } else if (type === 'GRAVITY_WELL') {
-        state.gravityWells.push({
-            x: sourceBall.x,
-            y: sourceBall.y,
-            life: 300 // 5 seconds at 60fps
-        });
+    } else if (type === 'CORRUPTION_BALL') {
+        state.corruption.active = true;
+        state.corruption.timer = 300; // 5 seconds at 60fps
+        state.corruption.meme = Math.random() > 0.5 ? '/prabs.jpg' : '/joks.jpg';
+    }
+}
+
+export function updateCorruptionChaos() {
+    if (state.corruption.active) {
+        state.corruption.timer--;
+        state.screenShake = 20; // Intense shake
+        state.gameSpeedMultiplier = 0.4; // Slow motion
+        
+        if (state.corruption.timer <= 0) {
+            state.corruption.active = false;
+            state.screenShake = 0;
+            state.gameSpeedMultiplier = 1.0;
+        }
     }
 }
 
@@ -419,4 +446,3 @@ export function drawGravityWells() {
         dom.ctx.restore();
     });
 }
-

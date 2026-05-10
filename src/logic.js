@@ -1,7 +1,7 @@
 import { state, dom } from './state.js';
 import * as constants from './constants.js';
 import { playSound } from './audio.js';
-import { createParticles, createFloatingText, updateParticles, updateFloatingTexts, updateHazards, updateMutators, updateExtraBalls, updateGravityWells } from './entities.js';
+import { createParticles, createFloatingText, updateParticles, updateFloatingTexts, updateHazards, updateMutators, updateExtraBalls, updateGravityWells, updateCorruptionChaos } from './entities.js';
 
 // Reset Ball
 export function resetBall(scorer) {
@@ -133,6 +133,7 @@ export function update() {
     updateMutators();
     updateExtraBalls();
     updateGravityWells();
+    updateCorruptionChaos();
 
     if (state.ballInvisibleTimer > 0) state.ballInvisibleTimer--;
 

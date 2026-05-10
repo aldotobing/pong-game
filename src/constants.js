@@ -34,5 +34,6 @@ export const MUTATOR_TYPES = [
     { type: 'MULTIBALL', color: '#10b981', text: 'MULTIBALL!' },
     { type: 'SHRINK', color: '#ef4444', text: 'SHRINK PADDLE!' },
     { type: 'INVISIBLE', color: '#8b5cf6', text: 'GHOST BALL!' },
-    { type: 'GRAVITY_WELL', color: '#f59e0b', text: 'GRAVITY WELL!' }
+    { type: 'GRAVITY_WELL', color: '#f59e0b', text: 'GRAVITY WELL!' },
+    { type: 'CORRUPTION_BALL', color: '#ef4444', text: 'CORRUPTION!' }
 ];
