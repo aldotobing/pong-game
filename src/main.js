@@ -4,11 +4,17 @@ import { setupInput } from './input.js';
 import { resetBall, updateScoreboard, update } from './logic.js';
 import { render } from './render.js';
 
+let lastTime = performance.now();
+
 // Game Loop
-// Now that performance bottlenecks (shadowBlur, gradients) are fixed,
-// a 1:1 update/render loop will run buttery smooth at native refresh rates.
-function gameLoop() {
-    update();
+function gameLoop(currentTime) {
+    const dt = (currentTime - lastTime) / 1000;
+    lastTime = currentTime;
+    
+    // Cap dt to avoid massive jumps (e.g. tab switching)
+    const normalizedDt = Math.min(dt, 0.1); 
+
+    update(normalizedDt);
     render();
     requestAnimationFrame(gameLoop);
 }

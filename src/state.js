@@ -34,6 +34,7 @@ export const state = {
     gravityWells: [],
     corruption: { active: false, timer: 0, meme: null },
     ballInvisibleTimer: 0,
+    lastMutatorSpawnTime: 0,
     player: {
         x: 40,
         y: constants.CANVAS_HEIGHT / 2 - constants.PADDLE_HEIGHT / 2,

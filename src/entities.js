@@ -284,27 +284,29 @@ export function drawExtraBalls() {
 }
 
 export function updateMutators() {
-    // Force spawn logic: if it's the start of the game and no mutators, spawn one
-    if (state.gameState === 'PLAYING' && state.mutators.length === 0 && state.rallyCount === 1) {
-        // Find the corruption ball config
-        const typeObj = constants.MUTATOR_TYPES.find(m => m.type === 'CORRUPTION_BALL');
-        state.mutators.push({
-            x: constants.CANVAS_WIDTH / 2,
-            y: constants.CANVAS_HEIGHT / 2,
-            dx: (Math.random() - 0.5) * 2,
-            dy: (Math.random() - 0.5) * 2,
-            radius: 18,
-            ...typeObj,
-            life: 600,
-            pulse: 0
-        });
-    }
+    const now = Date.now();
+    // Balanced spawn logic: ~1.5% chance per frame while playing, up to 2 mutators allowed
+    if (state.gameState === 'PLAYING' && state.rallyCount >= 1 && Math.random() < 0.015 && state.mutators.length < 2 && (now - state.lastMutatorSpawnTime > 5000)) {
 
-    // Normal Spawn logic
-    else if (state.gameState === 'PLAYING' && Math.random() < 0.003 && state.mutators.length === 0) {
-        let typeObj = constants.MUTATOR_TYPES[Math.floor(Math.random() * constants.MUTATOR_TYPES.length)];
+
+        let typeObj;
+        // 40% Corruption Ball, 60% others (MULTIBALL is extremely rare)
+        if (Math.random() < 0.4) {
+            typeObj = constants.MUTATOR_TYPES.find(m => m.type === 'CORRUPTION_BALL');
+        } else {
+            const others = constants.MUTATOR_TYPES.filter(m => m.type !== 'CORRUPTION_BALL');
+            // Weight: MULTIBALL (1), SHRINK (5), INVISIBLE (5), GRAVITY_WELL (5)
+            const weightedOthers = [];
+            others.forEach(m => {
+                const weight = (m.type === 'MULTIBALL') ? 1 : 5;
+                for(let i=0; i<weight; i++) weightedOthers.push(m);
+            });
+            typeObj = weightedOthers[Math.floor(Math.random() * weightedOthers.length)];
+        }
+
+        state.lastMutatorSpawnTime = now;
         state.mutators.push({
-            x: constants.CANVAS_WIDTH / 2,
+            x: Math.random() * (constants.CANVAS_WIDTH - 200) + 100,
             y: Math.random() * (constants.CANVAS_HEIGHT - 100) + 50,
             dx: (Math.random() - 0.5) * 2,
             dy: (Math.random() - 0.5) * 2,
@@ -314,6 +316,7 @@ export function updateMutators() {
             pulse: 0
         });
     }
+
 
     for (let i = state.mutators.length - 1; i >= 0; i--) {
         let m = state.mutators[i];

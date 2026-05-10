@@ -105,11 +105,14 @@ export function checkCollision(b, p) {
 }
 
 // Update Logic
-export function update() {
+export function update(dt = 1/60) {
     if (state.gameState !== 'PLAYING') return;
 
+    // Adjust speed by gameSpeedMultiplier and dt
+    const effectiveSpeed = dt * 60 * (state.gameSpeedMultiplier || 1);
+
     if (state.screenShake > 0) {
-        state.screenShake *= 0.85;
+        state.screenShake *= Math.pow(0.85, dt * 60);
         if (state.screenShake < 0.5) state.screenShake = 0;
     }
 
@@ -118,14 +121,14 @@ export function update() {
         return;
     }
 
-    if (state.player.hitBump > 0) state.player.hitBump -= 0.1;
-    if (state.computer.hitBump > 0) state.computer.hitBump -= 0.1;
+    if (state.player.hitBump > 0) state.player.hitBump -= 0.1 * dt * 60;
+    if (state.computer.hitBump > 0) state.computer.hitBump -= 0.1 * dt * 60;
 
     // Squash and stretch physics
-    state.ball.scaleX += (state.ball.targetScaleX - state.ball.scaleX) * 0.2;
-    state.ball.scaleY += (state.ball.targetScaleY - state.ball.scaleY) * 0.2;
-    state.ball.targetScaleX += (1 - state.ball.targetScaleX) * 0.1;
-    state.ball.targetScaleY += (1 - state.ball.targetScaleY) * 0.1;
+    state.ball.scaleX += (state.ball.targetScaleX - state.ball.scaleX) * 0.2 * effectiveSpeed;
+    state.ball.scaleY += (state.ball.targetScaleY - state.ball.scaleY) * 0.2 * effectiveSpeed;
+    state.ball.targetScaleX += (1 - state.ball.targetScaleX) * 0.1 * effectiveSpeed;
+    state.ball.targetScaleY += (1 - state.ball.targetScaleY) * 0.1 * effectiveSpeed;
 
     updateParticles();
     updateFloatingTexts();
@@ -135,22 +138,22 @@ export function update() {
     updateGravityWells();
     updateCorruptionChaos();
 
-    if (state.ballInvisibleTimer > 0) state.ballInvisibleTimer--;
+    if (state.ballInvisibleTimer > 0) state.ballInvisibleTimer -= dt * 60;
 
     // Player Movement
-    if (state.keys.ArrowUp) state.player.y -= constants.PADDLE_SPEED;
-    if (state.keys.ArrowDown) state.player.y += constants.PADDLE_SPEED;
+    if (state.keys.ArrowUp) state.player.y -= constants.PADDLE_SPEED * effectiveSpeed;
+    if (state.keys.ArrowDown) state.player.y += constants.PADDLE_SPEED * effectiveSpeed;
     if (state.player.y < 0) state.player.y = 0;
     if (state.player.y + constants.PADDLE_HEIGHT > constants.CANVAS_HEIGHT) state.player.y = constants.CANVAS_HEIGHT - constants.PADDLE_HEIGHT;
 
-    // Computer AI (Smooth predictive tracking for closest incoming state.ball)
+    // Computer AI 
     let closestBall = null;
     let minDist = Infinity;
 
     let allBalls = [state.ball, ...state.extraBalls];
     allBalls.forEach(b => {
-        if (b.dx > 0) { // Heading towards state.computer
-            let dist = (state.computer.x - b.x) / b.dx; // frames to reach
+        if (b.dx > 0) { 
+            let dist = (state.computer.x - b.x) / b.dx; 
             if (dist > 0 && dist < minDist) {
                 minDist = dist;
                 closestBall = b;
@@ -163,14 +166,14 @@ export function update() {
         const targetY = closestBall.y + (closestBall.dy * 5);
 
         if (computerCenter < targetY - 10) {
-            state.computer.y += constants.COMPUTER_SPEED;
+            state.computer.y += constants.COMPUTER_SPEED * effectiveSpeed;
         } else if (computerCenter > targetY + 10) {
-            state.computer.y -= constants.COMPUTER_SPEED;
+            state.computer.y -= constants.COMPUTER_SPEED * effectiveSpeed;
         }
     } else {
         const computerCenter = state.computer.y + state.computer.height / 2;
-        if (computerCenter < constants.CANVAS_HEIGHT / 2 - 10) state.computer.y += constants.COMPUTER_SPEED * 0.5;
-        else if (computerCenter > constants.CANVAS_HEIGHT / 2 + 10) state.computer.y -= constants.COMPUTER_SPEED * 0.5;
+        if (computerCenter < constants.CANVAS_HEIGHT / 2 - 10) state.computer.y += constants.COMPUTER_SPEED * 0.5 * effectiveSpeed;
+        else if (computerCenter > constants.CANVAS_HEIGHT / 2 + 10) state.computer.y -= constants.COMPUTER_SPEED * 0.5 * effectiveSpeed;
     }
 
     if (state.computer.y < 0) state.computer.y = 0;
@@ -182,8 +185,8 @@ export function update() {
     if (state.ball.trail.length > maxTrail) state.ball.trail.shift();
 
     // Ball Movement
-    state.ball.x += state.ball.dx;
-    state.ball.y += state.ball.dy;
+    state.ball.x += state.ball.dx * effectiveSpeed;
+    state.ball.y += state.ball.dy * effectiveSpeed;
 
     // Wall Collision
     if (state.ball.y - state.ball.radius < 0 || state.ball.y + state.ball.radius > constants.CANVAS_HEIGHT) {

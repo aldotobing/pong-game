@@ -9,6 +9,8 @@ A fast-paced, unhinged reimagining of the classic Pong. This version pushes your
   - 🟢 **MULTIBALL!** - Spawns extra balls for ultimate chaos.
   - 🔴 **SHRINK PADDLE!** - Reduces your paddle size temporarily.
   - 🟣 **GHOST BALL!** - The main ball turns nearly invisible for a short duration!
+  - 🟠 **GRAVITY WELL!** - Spawns a gravitational field that bends the ball's path.
+  - 🔴 **CORRUPTION!** - Triggers a satirical chaos event with glitch effects, memes, and randomized political slogans.
 - **Dynamic Arena Hazards:** Two roaming neon hazards bounce along the center line. Hitting one reflects the ball unpredictably.
 - **Combo & Style System:** 
   - **Sharp Shots:** Hitting the ball with the extreme edge of your paddle performs a "Sharp Shot", awarding an extra point and massive speed boost.
