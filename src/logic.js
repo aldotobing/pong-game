@@ -25,7 +25,8 @@ export function resetBall(scorer) {
 
     const direction = scorer === 'player' ? -1 : 1;
     state.ball.dx = direction * constants.INITIAL_BALL_SPEED;
-    state.ball.dy = (Math.random() * 2 - 1) * constants.INITIAL_BALL_SPEED;
+    // Limit vertical speed to 50% of the initial speed to make the start less sharp
+    state.ball.dy = (Math.random() * 2 - 1) * (constants.INITIAL_BALL_SPEED * 0.5);
 }
 
 // Reset Game
@@ -188,6 +189,11 @@ export function update(dt = 1/60) {
     state.ball.x += state.ball.dx * effectiveSpeed;
     state.ball.y += state.ball.dy * effectiveSpeed;
 
+    // Enforce horizontal movement: prevent near-vertical bounce loops
+    if (Math.abs(state.ball.dx) < 1.5) {
+        state.ball.dx += (state.ball.dx >= 0 ? 0.2 : -0.2) * effectiveSpeed;
+    }
+
     // Wall Collision
     if (state.ball.y - state.ball.radius < 0 || state.ball.y + state.ball.radius > constants.CANVAS_HEIGHT) {
         playSound('wall');
@@ -261,27 +267,45 @@ export function update(dt = 1/60) {
         if (hitPointAbs > 0.85) {
             playSound('score_win');
             createFloatingText(state.ball.x, state.ball.y, "SHARP SHOT!", "#facc15");
-            state.ball.speed += 3; // Huge speed boost
-            state.screenShake = 15;
-            state.hitPauseFrames = 10;
+            state.ball.speed += 1.5; 
+            state.screenShake = 10;
+            state.hitPauseFrames = 5;
+            
+            // Force a flat, horizontal trajectory (max 15 degrees)
+            const flatAngle = 15 * (Math.PI / 180);
+            state.ball.dy = (state.ball.dy >= 0 ? 1 : -1) * state.ball.speed * Math.sin(flatAngle);
+            state.ball.dx = (hitPaddle === state.player ? 1 : -1) * Math.sqrt(Math.max(0, state.ball.speed * state.ball.speed - state.ball.dy * state.ball.dy));
+        }
+        
+        // Dampen sensitivity at the extreme edges (outer 10%)
+        const dampenedHitPoint = Math.max(-0.9, Math.min(0.9, hitPointRaw));
+
+        // Map hit point (-1 to 1) to a safe exit angle range (e.g., 10 to 55 degrees)
+        const minAngle = 10 * (Math.PI / 180);
+        const maxAngle = 55 * (Math.PI / 180);
+        
+        let angle = dampenedHitPoint * maxAngle;
+        
+        if (Math.abs(angle) < minAngle) {
+            angle = (angle >= 0 ? 1 : -1) * minAngle;
         }
 
-        let angle = hitPointRaw * (Math.PI / 3); // Base angle up to 60 degrees
-
-        // Introduce a slight random variation (approx +/- 8.5 degrees) for unpredictability
-        const randomVariation = (Math.random() - 0.5) * 0.3;
-        angle += randomVariation;
-
-        // Clamp the angle to prevent it from becoming too vertical
-        const maxAngle = Math.PI / 2.4;
-        if (angle > maxAngle) angle = maxAngle;
-        if (angle < -maxAngle) angle = -maxAngle;
-
+        // Calculate new trajectory
         state.ball.speed = Math.min(state.ball.speed + 0.6 + (state.rallyCount * 0.03), constants.MAX_BALL_SPEED);
         const direction = hitPaddle === state.player ? 1 : -1;
 
+        // Base velocity calculation
         state.ball.dx = direction * state.ball.speed * Math.cos(angle);
         state.ball.dy = state.ball.speed * Math.sin(angle);
+
+        // HARD CAP: vertical velocity cannot exceed 50% of total speed
+        const maxDyRatio = 0.5;
+        if (Math.abs(state.ball.dy) > state.ball.speed * maxDyRatio) {
+            const cappedDy = (state.ball.dy >= 0 ? 1 : -1) * state.ball.speed * maxDyRatio;
+            const remainingSpeedSq = state.ball.speed * state.ball.speed - cappedDy * cappedDy;
+            state.ball.dx = direction * Math.sqrt(Math.max(0, remainingSpeedSq));
+            state.ball.dy = cappedDy;
+        }
     }
 
     // Scoring

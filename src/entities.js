@@ -84,11 +84,24 @@ export function updateHazards() {
             state.ball.dx += (Math.random() - 0.5) * 4;
             state.ball.dy += (Math.random() - 0.5) * 4;
 
-            // Normalise speed to slightly bumped
+            // Enforce minimum horizontal speed to avoid vertical-only "stuck" loops
+            if (Math.abs(state.ball.dx) < 3.0) {
+                state.ball.dx = (state.ball.dx >= 0 ? 1 : -1) * 3.0;
+            }
+
+            // Normalise speed
             state.ball.speed += 1;
             let newDist = Math.sqrt(state.ball.dx * state.ball.dx + state.ball.dy * state.ball.dy);
             state.ball.dx = (state.ball.dx / newDist) * state.ball.speed;
             state.ball.dy = (state.ball.dy / newDist) * state.ball.speed;
+
+            // HARD CAP: vertical velocity cannot exceed 50% of total speed
+            const maxDyRatio = 0.5;
+            if (Math.abs(state.ball.dy) > state.ball.speed * maxDyRatio) {
+                state.ball.dy = (state.ball.dy >= 0 ? 1 : -1) * state.ball.speed * maxDyRatio;
+                const remainingSpeedSq = state.ball.speed * state.ball.speed - state.ball.dy * state.ball.dy;
+                state.ball.dx = (state.ball.dx >= 0 ? 1 : -1) * Math.sqrt(Math.max(0, remainingSpeedSq));
+            }
         }
     });
 }
