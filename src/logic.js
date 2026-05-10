@@ -341,7 +341,7 @@ export function showGameOverUi() {
                 const resultMsg = state.winner === 'PLAYER' ? 'won' : 'lost';
                 const scoreText = `${state.playerScore} - ${state.computerScore}`;
                 const text = `I just ${resultMsg} at Retro Pong with a score of ${scoreText}! 🏓\n\nCan you beat it?`;
-                const shareUrl = "https://retropong.vercel.app/";
+                const shareUrl = "https://retro-pong.pages.dev/";
                 tweetBtn.onclick = (e) => {
                     e.preventDefault();
                     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
@@ -425,7 +425,7 @@ export function showGameOverUi() {
                         }
 
                         const file = new File([blob], 'retropong-score.png', { type: 'image/png' });
-                        const shareText = `I just ${state.winner === 'PLAYER' ? 'won' : 'lost'} at Retro Pong! 🏓\n\nCan you beat it?\n\nPlay here: https://retropong.vercel.app/`;
+                        const shareText = `I just ${state.winner === 'PLAYER' ? 'won' : 'lost'} at Retro Pong! 🏓\n\nCan you beat it?\n\nPlay here: https://retro-pong.pages.dev/`;
 
                         if (navigator.canShare && navigator.canShare({ files: [file] })) {
                             try {

@@ -157,9 +157,10 @@ export function render() {
         if (!state.corruption.img || state.corruption.img.src.indexOf(state.corruption.meme) === -1) {
             state.corruption.img = new Image();
             state.corruption.img.src = state.corruption.meme;
+            state.corruption.img.onload = () => { console.log("Meme loaded"); };
         }
 
-        if (state.corruption.img.complete) {
+        if (state.corruption.img && state.corruption.img.complete) {
             dom.ctx.save();
             dom.ctx.beginPath();
             dom.ctx.arc(state.ball.x, state.ball.y, state.ball.radius * 6, 0, Math.PI * 2);
@@ -171,6 +172,7 @@ export function render() {
             drawBallSphere(state.ball.x, state.ball.y, state.ball.radius * 2, '#ef4444', state.ball.scaleX, state.ball.scaleY);
         }
     } else if (state.ballInvisibleTimer <= 0) {
+
         drawBallSphere(state.ball.x, state.ball.y, state.ball.radius, state.ball.color, state.ball.scaleX, state.ball.scaleY);
     } else {
         // Draw just a faint glimmer when invisible
