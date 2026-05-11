@@ -72,16 +72,16 @@ export function updateScoreboard(scorer = null) {
 // Ultimate Burst Ability
 export function triggerUltimate() {
     if (state.ultimateEnergy < 100) return;
-    
+
     state.ultimateEnergy = 0;
     updateScoreboard(); // Reset bar UI
-    
+
     // Time Dilation Effect
     state.gameSpeedMultiplier = 0.3; // Global game speed multiplier
-    
+
     createFloatingText(constants.CANVAS_WIDTH / 2, constants.CANVAS_HEIGHT / 2, "CHRONOS OVERLOAD!", "#f59e0b");
     playSound('score_win');
-    
+
     setTimeout(() => {
         state.gameSpeedMultiplier = 1.0;
     }, 3000);
@@ -106,7 +106,7 @@ export function checkCollision(b, p) {
 }
 
 // Update Logic
-export function update(dt = 1/60) {
+export function update(dt = 1 / 60) {
     if (state.gameState !== 'PLAYING') return;
 
     // Adjust speed by gameSpeedMultiplier and dt
@@ -153,8 +153,8 @@ export function update(dt = 1/60) {
 
     let allBalls = [state.ball, ...state.extraBalls];
     allBalls.forEach(b => {
-        if (b.dx > 0) { 
-            let dist = (state.computer.x - b.x) / b.dx; 
+        if (b.dx > 0) {
+            let dist = (state.computer.x - b.x) / b.dx;
             if (dist > 0 && dist < minDist) {
                 minDist = dist;
                 closestBall = b;
@@ -267,25 +267,25 @@ export function update(dt = 1/60) {
         if (hitPointAbs > 0.85) {
             playSound('score_win');
             createFloatingText(state.ball.x, state.ball.y, "SHARP SHOT!", "#facc15");
-            state.ball.speed += 1.5; 
+            state.ball.speed += 1.5;
             state.screenShake = 10;
             state.hitPauseFrames = 5;
-            
+
             // Force a flat, horizontal trajectory (max 15 degrees)
             const flatAngle = 15 * (Math.PI / 180);
             state.ball.dy = (state.ball.dy >= 0 ? 1 : -1) * state.ball.speed * Math.sin(flatAngle);
             state.ball.dx = (hitPaddle === state.player ? 1 : -1) * Math.sqrt(Math.max(0, state.ball.speed * state.ball.speed - state.ball.dy * state.ball.dy));
         }
-        
+
         // Dampen sensitivity at the extreme edges (outer 10%)
         const dampenedHitPoint = Math.max(-0.9, Math.min(0.9, hitPointRaw));
 
         // Map hit point (-1 to 1) to a safe exit angle range (e.g., 10 to 55 degrees)
         const minAngle = 10 * (Math.PI / 180);
         const maxAngle = 55 * (Math.PI / 180);
-        
+
         let angle = dampenedHitPoint * maxAngle;
-        
+
         if (Math.abs(angle) < minAngle) {
             angle = (angle >= 0 ? 1 : -1) * minAngle;
         }
@@ -313,26 +313,26 @@ export function update(dt = 1/60) {
         playSound('score_lose');
         state.computerScore++;
         updateScoreboard('computer');
-        
+
         // Epic Score Effect
         state.screenShake = 30;
         state.hitPauseFrames = 20;
         createParticles(constants.CANVAS_WIDTH / 2, constants.CANVAS_HEIGHT / 2, constants.COLOR_COMPUTER, 100);
         createFloatingText(constants.CANVAS_WIDTH / 2, constants.CANVAS_HEIGHT / 2, "POINT CPU!", constants.COLOR_COMPUTER);
-        
+
         checkWinCondition();
         if (state.gameState === 'PLAYING') resetBall('computer');
     } else if (state.ball.x > constants.CANVAS_WIDTH + 50) {
         playSound('score_win');
         state.playerScore++;
         updateScoreboard('player');
-        
+
         // Epic Score Effect
         state.screenShake = 40;
         state.hitPauseFrames = 25;
         createParticles(constants.CANVAS_WIDTH / 2, constants.CANVAS_HEIGHT / 2, constants.COLOR_PLAYER, 150);
         createFloatingText(constants.CANVAS_WIDTH / 2, constants.CANVAS_HEIGHT / 2, "POINT PLAYER!", constants.COLOR_PLAYER);
-        
+
         checkWinCondition();
         if (state.gameState === 'PLAYING') resetBall('player');
     }
@@ -359,7 +359,7 @@ export function showGameOverUi() {
         setTimeout(() => {
             ui.style.display = 'flex';
             ui.style.animation = 'fadeInUi 0.5s ease forwards';
-            
+
             const bahlil = document.getElementById('bahlilMeme');
             if (bahlil && state.winner === 'CPU') bahlil.style.display = 'block';
 
@@ -368,7 +368,7 @@ export function showGameOverUi() {
                 const resultMsg = state.winner === 'PLAYER' ? 'won' : 'lost';
                 const scoreText = `${state.playerScore} - ${state.computerScore}`;
                 const text = `I just ${resultMsg} at Retro Pong with a score of ${scoreText}! 🏓\n\nCan you beat it?`;
-                const shareUrl = "https://retro-pong.pages.dev/";
+                const shareUrl = "https://retro-pong.pages.dev";
                 tweetBtn.onclick = (e) => {
                     e.preventDefault();
                     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
@@ -380,7 +380,7 @@ export function showGameOverUi() {
             if (igBtn) {
                 igBtn.onclick = async () => {
                     const canvas = document.getElementById('gameCanvas');
-                    
+
                     // Create a 1080x1920 portrait canvas for Instagram Story
                     const igCanvas = document.createElement('canvas');
                     igCanvas.width = 1080;
@@ -431,7 +431,7 @@ export function showGameOverUi() {
                     igCtx.fillStyle = '#000';
                     igCtx.fillRect(dx - 6, dy - 6, dw + 12, dh + 12);
                     igCtx.shadowBlur = 0; // reset
-                    
+
                     igCtx.drawImage(canvas, dx, dy, dw, dh);
 
                     // 5. Draw the massive score at the bottom
@@ -452,7 +452,7 @@ export function showGameOverUi() {
                         }
 
                         const file = new File([blob], 'retropong-score.png', { type: 'image/png' });
-                        const shareText = `I just ${state.winner === 'PLAYER' ? 'won' : 'lost'} at Retro Pong! 🏓\n\nCan you beat it?\n\nPlay here: https://retro-pong.pages.dev/`;
+                        const shareText = `I just ${state.winner === 'PLAYER' ? 'won' : 'lost'} at Retro Pong! 🏓\n\nCan you beat it?\n\nPlay here: https://retro-pong.pages.dev`;
 
                         if (navigator.canShare && navigator.canShare({ files: [file] })) {
                             try {
